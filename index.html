@@ -1,532 +1,2400 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Swan River Survey Dashboard | CoE SEnSRS, IIT Ropar</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<style>
-:root{--navy:#0B2447;--navy-mid:#19376D;--teal:#1A6B8C;--gold:#C8A951;--gold-light:#F0D080;--accent:#E84545;--green:#27AE60;--bg:#F4F6FA;--card:#fff;--border:#D6DDE8;--text:#1A2540;--muted:#607090;--sidebar-w:230px;}
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;overflow:hidden;}
-body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);}
-/* LANDING */
-#landing{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#03152b 0%,#0B2447 45%,#19376D 75%,#0d3060 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.2s ease,transform 1.2s ease;}
-#landing.fade-out{opacity:0;pointer-events:none;transform:scale(1.07);}
-.stars{position:absolute;width:100%;height:100%;overflow:hidden;pointer-events:none;}
-.star{position:absolute;background:white;border-radius:50%;animation:twinkle var(--dur) infinite ease-in-out;}
-@keyframes twinkle{0%,100%{opacity:0.12;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
-.wave-c{position:absolute;bottom:0;left:0;width:100%;height:35%;overflow:hidden;}
-.wave{position:absolute;bottom:0;left:-100%;width:300%;height:65px;border-radius:50% 50% 0 0;animation:wm 4s ease-in-out infinite;}
-.w1{background:rgba(25,120,200,0.18);}
-.w2{background:rgba(25,160,220,0.12);animation-delay:1.8s;}
-@keyframes wm{0%,100%{transform:translateX(0) scaleY(1);}50%{transform:translateX(12%) scaleY(1.2);}}
-.emblem{width:108px;height:108px;border-radius:50%;border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;margin-bottom:18px;background:rgba(200,169,81,0.08);animation:pr 2.5s ease-in-out infinite,fid 1s ease both;font-size:42px;}
-@keyframes pr{0%,100%{box-shadow:0 0 20px rgba(200,169,81,0.3);}50%{box-shadow:0 0 55px rgba(200,169,81,0.65);}}
-@keyframes fid{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
-@keyframes fiu{from{opacity:0;transform:translateY(25px);}to{opacity:1;transform:translateY(0);}}
-.lt{font-family:'Playfair Display',serif;font-size:clamp(22px,4vw,50px);font-weight:900;color:#fff;text-align:center;line-height:1.2;animation:fiu 1.2s ease 0.3s both;text-shadow:0 2px 24px rgba(0,0,0,0.5);}
-.ls{font-size:clamp(12px,2vw,17px);color:var(--gold-light);margin-top:10px;letter-spacing:2.5px;text-transform:uppercase;animation:fiu 1.2s ease 0.6s both;text-align:center;}
-.ld{font-size:13px;color:rgba(255,255,255,0.6);margin-top:7px;animation:fiu 1.2s ease 0.9s both;text-align:center;}
-.l-stats{display:flex;gap:40px;margin-top:36px;animation:fiu 1.2s ease 1.2s both;flex-wrap:wrap;justify-content:center;}
-.l-stat .v{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--gold-light);text-align:center;}
-.l-stat .l{font-size:10px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:1.5px;text-align:center;}
-.enter-btn{margin-top:36px;padding:14px 50px;background:linear-gradient(135deg,#C8A951,#F0D080);color:#0B2447;border:none;border-radius:50px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:1px;animation:fiu 1.2s ease 1.5s both,gbtn 2.5s ease-in-out infinite;transition:transform 0.2s;}
-.enter-btn:hover{transform:translateY(-4px) scale(1.04);}
-@keyframes gbtn{0%,100%{box-shadow:0 8px 30px rgba(200,169,81,0.4);}50%{box-shadow:0 8px 55px rgba(200,169,81,0.7);}}
-.lbar{position:absolute;bottom:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));animation:lb 6s linear forwards;}
-@keyframes lb{from{width:0;}to{width:100%;}}
-/* APP */
-#app{display:none;height:100vh;overflow:hidden;}
-#app.vis{display:flex;}
-/* SIDEBAR */
-.sidebar{width:var(--sidebar-w);height:100vh;background:var(--navy);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:100;box-shadow:4px 0 24px rgba(0,0,0,0.18);overflow-y:auto;}
-.sb-logo{padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:center;}
-.sb-logo .ico{font-size:30px;}.sb-logo .ttl{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-top:6px;}.sb-logo .sub{font-size:9px;color:var(--gold-light);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;}
-.nav-s{padding:14px 10px 6px;}
-.nav-lbl{font-size:8.5px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.3);padding:0 8px;margin-bottom:5px;}
-.ni{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;margin-bottom:2px;font-size:13px;font-weight:500;border:1px solid transparent;}
-.ni:hover{background:rgba(255,255,255,0.08);color:#fff;}
-.ni.active{background:linear-gradient(135deg,rgba(200,169,81,0.25),rgba(200,169,81,0.1));color:var(--gold-light);border-color:rgba(200,169,81,0.35);}
-.ni-ico{font-size:17px;width:22px;text-align:center;flex-shrink:0;}
-.sb-foot{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,0.1);font-size:9.5px;color:rgba(255,255,255,0.3);text-align:center;line-height:1.6;}
-/* MAIN */
-.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
-.topbar{background:#fff;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;border-bottom:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,0.05);flex-shrink:0;}
-.tb-ttl{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--navy);}
-.tb-r{display:flex;align-items:center;gap:14px;}
-.dst-sel{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:#F8FAFF;font-family:'Nunito',sans-serif;font-size:12.5px;color:var(--text);cursor:pointer;outline:none;}
-.ribbon{background:linear-gradient(135deg,#C8A951,#E0C060);color:var(--navy);padding:4px 20px;font-size:10.5px;font-weight:700;text-align:center;letter-spacing:1.5px;text-transform:uppercase;flex-shrink:0;}
-/* PAGES */
-.pages{flex:1;overflow:hidden;position:relative;display:flex;flex-direction:column;}
-.page{display:none;height:100%;overflow-y:auto;padding:22px 26px;animation:pIn 0.35s ease;}
-.page.active{display:block;}
-@keyframes pIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-#page-map{padding:0;display:none;position:relative;}
-#page-map.active{display:flex;flex-direction:column;}
-#page-ai{padding:18px 24px;display:none;}
-#page-ai.active{display:flex;flex-direction:column;}
-/* CARDS */
-.card{background:var(--card);border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,0.06);border:1px solid var(--border);overflow:hidden;}
-.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#F8FAFF,#fff);}
-.card-ttl{font-size:14.5px;font-weight:700;color:var(--navy);font-family:'Playfair Display',serif;}
-.card-bd{padding:18px;}
-/* STATS */
-.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px;}
-.sc{background:var(--card);border-radius:14px;padding:18px;border:1px solid var(--border);position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
-.sc:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.1);}
-.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--ac);}
-.sc-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px;}
-.sc-val{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--navy);}
-.sc-sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
-.sc-ico{position:absolute;right:14px;top:14px;font-size:28px;opacity:0.12;}
-/* HOME HERO */
-.hero{background:linear-gradient(135deg,var(--navy) 0%,#19376D 55%,var(--teal) 100%);border-radius:18px;padding:36px;margin-bottom:22px;position:relative;overflow:hidden;color:#fff;}
-.hero::after{content:'';position:absolute;right:-50px;bottom:-50px;width:220px;height:220px;border-radius:50%;background:rgba(200,169,81,0.09);}
-.htag{display:inline-block;background:rgba(200,169,81,0.2);color:var(--gold-light);border-radius:20px;padding:4px 14px;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;border:1px solid rgba(200,169,81,0.3);}
-.httl{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;line-height:1.2;margin-bottom:10px;}
-.hsub{font-size:14px;opacity:0.8;line-height:1.6;max-width:580px;}
-.hstats{display:flex;gap:28px;margin-top:24px;flex-wrap:wrap;}
-.hstat{border-left:2px solid rgba(200,169,81,0.5);padding-left:14px;}
-.hstat .v{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold-light);}
-.hstat .l{font-size:10px;opacity:0.65;text-transform:uppercase;letter-spacing:1px;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
-.cw{position:relative;height:260px;}
-/* TABLE */
-.tc{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
-.sbox{flex:1;min-width:180px;padding:8px 16px 8px 34px;border-radius:22px;border:1px solid var(--border);background:#F8FAFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23607090' stroke-width='2'%3E%3Cpath d='M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z'/%3E%3C/svg%3E") no-repeat 10px center/15px;font-family:'Nunito',sans-serif;font-size:13px;outline:none;}
-.fb{padding:7px 14px;border-radius:18px;border:1px solid var(--border);background:#F8FAFF;cursor:pointer;font-size:12px;font-family:'Nunito',sans-serif;transition:all 0.2s;}
-.fb.active{background:var(--navy);color:#fff;border-color:var(--navy);}
-.dt{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;}
-.dt th{background:var(--navy);color:#fff;padding:11px 13px;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:0.5px;position:sticky;top:0;z-index:5;}
-.dt td{padding:9px 13px;border-bottom:1px solid var(--border);}
-.dt tr:hover td{background:#F0F4FF;}
-.dt tr:last-child td{border-bottom:none;}
-.tc2{max-height:480px;overflow-y:auto;border-radius:12px;border:1px solid var(--border);}
-.db{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11.5px;font-weight:700;}
-.dp{background:#E8F8EF;color:#1E8449;}
-.dn{background:#FDEDEC;color:#C0392B;}
-.sp{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700;color:#fff;}
-/* MAP */
-#leaflet-map{flex:1;width:100%;min-height:0;}
-.map-ov{position:absolute;z-index:1000;}
-.mcp{top:12px;right:12px;background:rgba(255,255,255,0.97);border-radius:14px;padding:14px;box-shadow:0 6px 24px rgba(0,0,0,0.15);min-width:190px;backdrop-filter:blur(8px);}
-.mlp{bottom:30px;left:12px;background:rgba(255,255,255,0.97);border-radius:14px;padding:14px;box-shadow:0 6px 24px rgba(0,0,0,0.15);backdrop-filter:blur(8px);}
-.mst{top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,0.97);border-radius:14px;padding:16px 24px;box-shadow:0 8px 28px rgba(0,0,0,0.15);text-align:center;font-size:13px;color:var(--navy);font-weight:600;display:none;}
-.ct{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--navy);margin-bottom:9px;}
-.lr{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;font-size:12px;gap:10px;}
-.tg{width:38px;height:20px;border-radius:10px;background:#CDD5E0;position:relative;cursor:pointer;transition:background 0.25s;flex-shrink:0;}
-.tg.on{background:var(--teal);}
-.tgk{position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left 0.25s;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
-.tg.on .tgk{left:21px;}
-.bmb{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#F8FAFF;cursor:pointer;font-size:11.5px;font-family:'Nunito',sans-serif;margin-bottom:5px;text-align:left;transition:all 0.2s;display:flex;align-items:center;gap:6px;}
-.bmb:last-child{margin-bottom:0;}
-.bmb.active{background:var(--navy);color:#fff;border-color:var(--navy);}
-.lr2{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11.5px;}
-.ld2{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
-/* ANALYTICS */
-.pb{height:8px;border-radius:4px;background:#EEF0F8;overflow:hidden;}
-.pf{height:100%;border-radius:4px;transition:width 1.2s ease;}
-/* DOWNLOAD */
-.dlh{background:linear-gradient(135deg,#1a3a6b,#0B2447);border-radius:18px;padding:36px;text-align:center;color:#fff;margin-bottom:22px;}
-.dlb{display:inline-flex;align-items:center;gap:10px;padding:14px 38px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;border-radius:50px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 8px 28px rgba(200,169,81,0.4);transition:transform 0.2s,box-shadow 0.2s;text-decoration:none;}
-.dlb:hover{transform:translateY(-3px);box-shadow:0 12px 38px rgba(200,169,81,0.55);}
-/* AI */
-.ai-lay{display:flex;gap:18px;flex:1;overflow:hidden;}
-.ai-sd{width:250px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
-.ai-mn{flex:1;display:flex;flex-direction:column;overflow:hidden;gap:10px;}
-.mc{background:linear-gradient(135deg,var(--navy),#19376D);border-radius:14px;padding:18px;color:#fff;text-align:center;}
-.me{font-size:52px;animation:mf 2s ease-in-out infinite;display:block;}
-@keyframes mf{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-8px) rotate(3deg);}}
-.mn{font-weight:800;font-size:14px;color:var(--gold-light);margin-top:8px;}
-.ms{font-size:11px;opacity:0.65;display:flex;align-items:center;justify-content:center;gap:5px;margin-top:3px;}
-.od{width:7px;height:7px;border-radius:50%;background:#2ECC71;animation:blink 1.2s infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
-.lg{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
-.lnb{padding:6px;border:1px solid rgba(255,255,255,0.15);border-radius:7px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.75);cursor:pointer;font-size:10.5px;font-family:'Nunito',sans-serif;transition:all 0.2s;text-align:center;}
-.lnb:hover,.lnb.active{background:rgba(200,169,81,0.3);color:var(--gold-light);border-color:rgba(200,169,81,0.5);}
-.qqb{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#F8FAFF;cursor:pointer;font-size:11px;font-family:'Nunito',sans-serif;text-align:left;transition:all 0.2s;display:block;margin-bottom:5px;}
-.qqb:hover{background:var(--navy);color:#fff;}
-/* API KEY */
-.akb{background:linear-gradient(135deg,#FFF8E7,#FFFCF0);border:1px solid #F0D080;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
-.akb label{font-size:11.5px;font-weight:700;color:var(--navy);white-space:nowrap;}
-.aki{flex:1;min-width:150px;padding:7px 12px;border-radius:8px;border:1px solid var(--border);font-family:'Nunito',sans-serif;font-size:12px;outline:none;background:#fff;}
-.akbtn{padding:7px 14px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
-.akbtn:hover{background:var(--teal);}
-.akst{font-size:11px;color:var(--muted);width:100%;}
-/* CHAT */
-.cw2{flex:1;background:#fff;border-radius:14px;border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);}
-.chd{padding:14px 18px;background:linear-gradient(135deg,var(--navy),#19376D);color:#fff;display:flex;align-items:center;gap:12px;flex-shrink:0;}
-.cm{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
-.msg{max-width:82%;padding:11px 15px;border-radius:14px;font-size:13px;line-height:1.6;animation:mIn 0.3s ease;}
-@keyframes mIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-.msg.bot{background:#F0F4FF;border-bottom-left-radius:4px;align-self:flex-start;}
-.msg.user{background:var(--navy);color:#fff;border-bottom-right-radius:4px;align-self:flex-end;}
-.msg.error{background:#FEF0F0;border:1px solid #FECACA;align-self:flex-start;color:#C0392B;}
-.td{display:flex;gap:4px;padding:3px 0;}
-.td span{width:8px;height:8px;border-radius:50%;background:var(--muted);animation:tda 1s infinite;}
-.td span:nth-child(2){animation-delay:0.2s;}
-.td span:nth-child(3){animation-delay:0.4s;}
-@keyframes tda{0%,80%,100%{transform:scale(0.6);opacity:0.3;}40%{transform:scale(1);opacity:1;}}
-.cir{padding:11px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0;}
-.ci{flex:1;padding:9px 14px;border-radius:22px;border:1px solid var(--border);font-family:'Nunito',sans-serif;font-size:13px;resize:none;outline:none;max-height:90px;transition:border-color 0.2s;}
-.ci:focus{border-color:var(--teal);}
-.sndb{width:38px;height:38px;border-radius:50%;border:none;background:var(--navy);color:#fff;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;}
-.sndb:hover{background:var(--teal);transform:scale(1.1);}
-@keyframes spk{from{transform:scale(1);}to{transform:scale(1.15);}}
-/* NOTIF */
-.notif{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:12px 18px;border-radius:12px;font-size:13px;z-index:9998;transform:translateY(80px);opacity:0;transition:all 0.35s ease;box-shadow:0 8px 28px rgba(0,0,0,0.2);max-width:300px;}
-.notif.show{transform:translateY(0);opacity:1;}
-::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:#F0F4FF;}::-webkit-scrollbar-thumb{background:#B0BAD0;border-radius:3px;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swan River Survey Dashboard | CoE SEnSRS, IIT Ropar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Nunito:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy: #0B2447;
+      --navy-mid: #19376D;
+      --teal: #1A6B8C;
+      --gold: #C8A951;
+      --gold-light: #F0D080;
+      --accent: #E84545;
+      --green: #27AE60;
+      --bg: #F4F6FA;
+      --card: #fff;
+      --border: #D6DDE8;
+      --text: #1A2540;
+      --muted: #607090;
+      --sidebar-w: 230px;
+    }
 
-/* MOBILE RESPONSIVENESS */
-@media (max-width: 1024px) {
-  :root { --sidebar-w: 200px; }
-  .hsub { font-size: 13px; }
-  .httl { font-size: 22px; }
-}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-/* ============================
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* LANDING */
+    #landing {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #03152b 0%, #0B2447 45%, #19376D 75%, #0d3060 100%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+
+    #landing.fade-out {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.07);
+    }
+
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle var(--dur) infinite ease-in-out;
+    }
+
+    @keyframes twinkle {
+
+      0%,
+      100% {
+        opacity: 0.12;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.5);
+      }
+    }
+
+    .wave-c {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 35%;
+      overflow: hidden;
+    }
+
+    .wave {
+      position: absolute;
+      bottom: 0;
+      left: -100%;
+      width: 300%;
+      height: 65px;
+      border-radius: 50% 50% 0 0;
+      animation: wm 4s ease-in-out infinite;
+    }
+
+    .w1 {
+      background: rgba(25, 120, 200, 0.18);
+    }
+
+    .w2 {
+      background: rgba(25, 160, 220, 0.12);
+      animation-delay: 1.8s;
+    }
+
+    @keyframes wm {
+
+      0%,
+      100% {
+        transform: translateX(0) scaleY(1);
+      }
+
+      50% {
+        transform: translateX(12%) scaleY(1.2);
+      }
+    }
+
+    .emblem {
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      border: 3px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      background: rgba(200, 169, 81, 0.08);
+      animation: pr 2.5s ease-in-out infinite, fid 1s ease both;
+      font-size: 42px;
+    }
+
+    @keyframes pr {
+
+      0%,
+      100% {
+        box-shadow: 0 0 20px rgba(200, 169, 81, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 0 55px rgba(200, 169, 81, 0.65);
+      }
+    }
+
+    @keyframes fid {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fiu {
+      from {
+        opacity: 0;
+        transform: translateY(25px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .lt {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(22px, 4vw, 50px);
+      font-weight: 900;
+      color: #fff;
+      text-align: center;
+      line-height: 1.2;
+      animation: fiu 1.2s ease 0.3s both;
+      text-shadow: 0 2px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .ls {
+      font-size: clamp(12px, 2vw, 17px);
+      color: var(--gold-light);
+      margin-top: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      animation: fiu 1.2s ease 0.6s both;
+      text-align: center;
+    }
+
+    .ld {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 7px;
+      animation: fiu 1.2s ease 0.9s both;
+      text-align: center;
+    }
+
+    .l-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 36px;
+      animation: fiu 1.2s ease 1.2s both;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .l-stat .v {
+      font-family: 'Playfair Display', serif;
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--gold-light);
+      text-align: center;
+    }
+
+    .l-stat .l {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.55);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      text-align: center;
+    }
+
+    .enter-btn {
+      margin-top: 36px;
+      padding: 14px 50px;
+      background: linear-gradient(135deg, #C8A951, #F0D080);
+      color: #0B2447;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 1px;
+      animation: fiu 1.2s ease 1.5s both, gbtn 2.5s ease-in-out infinite;
+      transition: transform 0.2s;
+    }
+
+    .enter-btn:hover {
+      transform: translateY(-4px) scale(1.04);
+    }
+
+    @keyframes gbtn {
+
+      0%,
+      100% {
+        box-shadow: 0 8px 30px rgba(200, 169, 81, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 8px 55px rgba(200, 169, 81, 0.7);
+      }
+    }
+
+    .lbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      animation: lb 6s linear forwards;
+    }
+
+    @keyframes lb {
+      from {
+        width: 0;
+      }
+
+      to {
+        width: 100%;
+      }
+    }
+
+    /* APP */
+    #app {
+      display: none;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #app.vis {
+      display: flex;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 100;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+      overflow-y: auto;
+    }
+
+    .sb-logo {
+      padding: 22px 18px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .sb-logo .ico {
+      font-size: 30px;
+    }
+
+    .sb-logo .ttl {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+      margin-top: 6px;
+    }
+
+    .sb-logo .sub {
+      font-size: 9px;
+      color: var(--gold-light);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .nav-s {
+      padding: 14px 10px 6px;
+    }
+
+    .nav-lbl {
+      font-size: 8.5px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.3);
+      padding: 0 8px;
+      margin-bottom: 5px;
+    }
+
+    .ni {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 11px;
+      border-radius: 10px;
+      color: rgba(255, 255, 255, 0.65);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 2px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+
+    .ni:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .ni.active {
+      background: linear-gradient(135deg, rgba(200, 169, 81, 0.25), rgba(200, 169, 81, 0.1));
+      color: var(--gold-light);
+      border-color: rgba(200, 169, 81, 0.35);
+    }
+
+    .ni-ico {
+      font-size: 17px;
+      width: 22px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .sb-foot {
+      margin-top: auto;
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 9.5px;
+      color: rgba(255, 255, 255, 0.3);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* MAIN */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .topbar {
+      background: #fff;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 26px;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+      flex-shrink: 0;
+    }
+
+    .tb-ttl {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .tb-r {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dst-sel {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: #F8FAFF;
+      font-family: 'Nunito', sans-serif;
+      font-size: 12.5px;
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+    }
+
+    .ribbon {
+      background: linear-gradient(135deg, #C8A951, #E0C060);
+      color: var(--navy);
+      padding: 4px 20px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    /* PAGES */
+    .pages {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page {
+      display: none;
+      height: 100%;
+      overflow-y: auto;
+      padding: 22px 26px;
+      animation: pIn 0.35s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes pIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #page-map {
+      padding: 0;
+      display: none;
+      position: relative;
+    }
+
+    #page-map.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #page-ai {
+      padding: 18px 24px;
+      display: none;
+    }
+
+    #page-ai.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .card-hd {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #F8FAFF, #fff);
+    }
+
+    .card-ttl {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--navy);
+      font-family: 'Playfair Display', serif;
+    }
+
+    .card-bd {
+      padding: 18px;
+    }
+
+    /* STATS */
+    .sg {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .sc {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .sc:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .sc::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--ac);
+    }
+
+    .sc-lbl {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .sc-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .sc-sub {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .sc-ico {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      font-size: 28px;
+      opacity: 0.12;
+    }
+
+    /* HOME HERO */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #19376D 55%, var(--teal) 100%);
+      border-radius: 18px;
+      padding: 36px;
+      margin-bottom: 22px;
+      position: relative;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      right: -50px;
+      bottom: -50px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(200, 169, 81, 0.09);
+    }
+
+    .htag {
+      display: inline-block;
+      background: rgba(200, 169, 81, 0.2);
+      color: var(--gold-light);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 10.5px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      border: 1px solid rgba(200, 169, 81, 0.3);
+    }
+
+    .httl {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .hsub {
+      font-size: 14px;
+      opacity: 0.8;
+      line-height: 1.6;
+      max-width: 580px;
+    }
+
+    .hstats {
+      display: flex;
+      gap: 28px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .hstat {
+      border-left: 2px solid rgba(200, 169, 81, 0.5);
+      padding-left: 14px;
+    }
+
+    .hstat .v {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gold-light);
+    }
+
+    .hstat .l {
+      font-size: 10px;
+      opacity: 0.65;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .cw {
+      position: relative;
+      height: 260px;
+    }
+
+    /* TABLE */
+    .tc {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .sbox {
+      flex: 1;
+      min-width: 180px;
+      padding: 8px 16px 8px 34px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: #F8FAFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23607090' stroke-width='2'%3E%3Cpath d='M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z'/%3E%3C/svg%3E") no-repeat 10px center/15px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .fb {
+      padding: 7px 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: #F8FAFF;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: 'Nunito', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .fb.active {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    .dt {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 12.5px;
+    }
+
+    .dt th {
+      background: var(--navy);
+      color: #fff;
+      padding: 11px 13px;
+      font-weight: 600;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .dt td {
+      padding: 9px 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dt tr:hover td {
+      background: #F0F4FF;
+    }
+
+    .dt tr:last-child td {
+      border-bottom: none;
+    }
+
+    .tc2 {
+      max-height: 480px;
+      overflow-y: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .db {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .dp {
+      background: #E8F8EF;
+      color: #1E8449;
+    }
+
+    .dn {
+      background: #FDEDEC;
+      color: #C0392B;
+    }
+
+    .sp {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* MAP */
+    #leaflet-map {
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+    }
+
+    .map-ov {
+      position: absolute;
+      z-index: 1000;
+    }
+
+    .mcp {
+      top: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+      min-width: 190px;
+      backdrop-filter: blur(8px);
+    }
+
+    .mlp {
+      bottom: 30px;
+      left: 12px;
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(8px);
+    }
+
+    .mst {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 14px;
+      padding: 16px 24px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      font-size: 13px;
+      color: var(--navy);
+      font-weight: 600;
+      display: none;
+    }
+
+    .ct {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--navy);
+      margin-bottom: 9px;
+    }
+
+    .lr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 12px;
+      gap: 10px;
+    }
+
+    .tg {
+      width: 38px;
+      height: 20px;
+      border-radius: 10px;
+      background: #CDD5E0;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.25s;
+      flex-shrink: 0;
+    }
+
+    .tg.on {
+      background: var(--teal);
+    }
+
+    .tgk {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left 0.25s;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .tg.on .tgk {
+      left: 21px;
+    }
+
+    .bmb {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #F8FAFF;
+      cursor: pointer;
+      font-size: 11.5px;
+      font-family: 'Nunito', sans-serif;
+      margin-bottom: 5px;
+      text-align: left;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bmb:last-child {
+      margin-bottom: 0;
+    }
+
+    .bmb.active {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    .lr2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: 11.5px;
+    }
+
+    .ld2 {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ANALYTICS */
+    .pb {
+      height: 8px;
+      border-radius: 4px;
+      background: #EEF0F8;
+      overflow: hidden;
+    }
+
+    .pf {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1.2s ease;
+    }
+
+    /* DOWNLOAD */
+    .dlh {
+      background: linear-gradient(135deg, #1a3a6b, #0B2447);
+      border-radius: 18px;
+      padding: 36px;
+      text-align: center;
+      color: #fff;
+      margin-bottom: 22px;
+    }
+
+    .dlb {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 38px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--navy);
+      border: none;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 28px rgba(200, 169, 81, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+    }
+
+    .dlb:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 38px rgba(200, 169, 81, 0.55);
+    }
+
+    /* AI */
+    .ai-lay {
+      display: flex;
+      gap: 18px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .ai-sd {
+      width: 250px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .ai-mn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      gap: 10px;
+    }
+
+    .mc {
+      background: linear-gradient(135deg, var(--navy), #19376D);
+      border-radius: 14px;
+      padding: 18px;
+      color: #fff;
+      text-align: center;
+    }
+
+    .me {
+      font-size: 52px;
+      animation: mf 2s ease-in-out infinite;
+      display: block;
+    }
+
+    @keyframes mf {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(-3deg);
+      }
+
+      50% {
+        transform: translateY(-8px) rotate(3deg);
+      }
+    }
+
+    .mn {
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--gold-light);
+      margin-top: 8px;
+    }
+
+    .ms {
+      font-size: 11px;
+      opacity: 0.65;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      margin-top: 3px;
+    }
+
+    .od {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #2ECC71;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.2;
+      }
+    }
+
+    .lg {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .lnb {
+      padding: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.75);
+      cursor: pointer;
+      font-size: 10.5px;
+      font-family: 'Nunito', sans-serif;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .lnb:hover,
+    .lnb.active {
+      background: rgba(200, 169, 81, 0.3);
+      color: var(--gold-light);
+      border-color: rgba(200, 169, 81, 0.5);
+    }
+
+    .qqb {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #F8FAFF;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: 'Nunito', sans-serif;
+      text-align: left;
+      transition: all 0.2s;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .qqb:hover {
+      background: var(--navy);
+      color: #fff;
+    }
+
+    /* API KEY */
+    .akb {
+      background: linear-gradient(135deg, #FFF8E7, #FFFCF0);
+      border: 1px solid #F0D080;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .akb label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--navy);
+      white-space: nowrap;
+    }
+
+    .aki {
+      flex: 1;
+      min-width: 150px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      outline: none;
+      background: #fff;
+    }
+
+    .akbtn {
+      padding: 7px 14px;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .akbtn:hover {
+      background: var(--teal);
+    }
+
+    .akst {
+      font-size: 11px;
+      color: var(--muted);
+      width: 100%;
+    }
+
+    /* CHAT */
+    .cw2 {
+      flex: 1;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .chd {
+      padding: 14px 18px;
+      background: linear-gradient(135deg, var(--navy), #19376D);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .cm {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg {
+      max-width: 82%;
+      padding: 11px 15px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      animation: mIn 0.3s ease;
+    }
+
+    @keyframes mIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .msg.bot {
+      background: #F0F4FF;
+      border-bottom-left-radius: 4px;
+      align-self: flex-start;
+    }
+
+    .msg.user {
+      background: var(--navy);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      align-self: flex-end;
+    }
+
+    .msg.error {
+      background: #FEF0F0;
+      border: 1px solid #FECACA;
+      align-self: flex-start;
+      color: #C0392B;
+    }
+
+    .td {
+      display: flex;
+      gap: 4px;
+      padding: 3px 0;
+    }
+
+    .td span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      animation: tda 1s infinite;
+    }
+
+    .td span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .td span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes tda {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0.6);
+        opacity: 0.3;
+      }
+
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .cir {
+      padding: 11px 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .ci {
+      flex: 1;
+      padding: 9px 14px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      resize: none;
+      outline: none;
+      max-height: 90px;
+      transition: border-color 0.2s;
+    }
+
+    .ci:focus {
+      border-color: var(--teal);
+    }
+
+    .sndb {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+      background: var(--navy);
+      color: #fff;
+      cursor: pointer;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .sndb:hover {
+      background: var(--teal);
+      transform: scale(1.1);
+    }
+
+    @keyframes spk {
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.15);
+      }
+    }
+
+    /* NOTIF */
+    .notif {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      background: var(--navy);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      z-index: 9998;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.35s ease;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+      max-width: 300px;
+    }
+
+    .notif.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #F0F4FF;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #B0BAD0;
+      border-radius: 3px;
+    }
+
+    /* MOBILE RESPONSIVENESS */
+    @media (max-width: 1024px) {
+      :root {
+        --sidebar-w: 200px;
+      }
+
+      .hsub {
+        font-size: 13px;
+      }
+
+      .httl {
+        font-size: 22px;
+      }
+    }
+
+    /* ============================
    TABLET & MOBILE (≤768px)
    ============================ */
-@media (max-width: 768px) {
-  :root { --sidebar-w: 0px; }
+    @media (max-width: 768px) {
+      :root {
+        --sidebar-w: 0px;
+      }
 
-  /* --- Sidebar --- */
-  .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; width: 260px !important; z-index: 200; }
-  .sidebar.mobile-open { transform: translateX(0); }
-  .sidebar-overlay { display: block !important; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 199; }
+      /* --- Sidebar --- */
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        width: 260px !important;
+        z-index: 200;
+      }
 
-  /* --- Main area --- */
-  .main { margin-left: 0; }
-  html, body { overflow: hidden; }
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
 
-  /* --- Topbar --- */
-  .topbar { padding: 0 12px; height: 52px; gap: 8px; }
-  .tb-ttl { font-size: 13px; line-height: 1.3; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .dst-sel { display: none; }
-  .menu-btn { display: flex !important; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; background: rgba(11,36,71,0.08); }
+      .sidebar-overlay {
+        display: block !important;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 199;
+      }
 
-  /* --- Ribbon --- */
-  .ribbon { font-size: 9px; padding: 4px 10px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      /* --- Main area --- */
+      .main {
+        margin-left: 0;
+      }
 
-  /* --- Pages --- */
-  .page { padding: 12px 12px 80px 12px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  #page-ai { padding: 10px 10px 80px 10px; }
-  #page-map { padding: 0; }
+      html,
+      body {
+        overflow: hidden;
+      }
 
-  /* --- Landing page --- */
-  .l-stats { gap: 20px; }
-  .l-stat .v { font-size: 26px; }
-  .enter-btn { padding: 12px 36px; font-size: 14px; }
-  .ld { font-size: 11px; padding: 0 16px; text-align: center; }
+      /* --- Topbar --- */
+      .topbar {
+        padding: 0 12px;
+        height: 52px;
+        gap: 8px;
+      }
 
-  /* --- Hero section --- */
-  .hero { padding: 20px; border-radius: 14px; margin-bottom: 14px; }
-  .httl { font-size: 20px; }
-  .hsub { font-size: 12px; }
-  .hstats { gap: 16px; margin-top: 16px; }
-  .hstat .v { font-size: 18px; }
-  .hstat .l { font-size: 9px; }
+      .tb-ttl {
+        font-size: 13px;
+        line-height: 1.3;
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
-  /* --- Stat cards --- */
-  .sg { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .sc { padding: 14px 12px; }
-  .sc-val { font-size: 22px; }
-  .sc-lbl { font-size: 9.5px; }
-  .sc-sub { font-size: 10.5px; }
+      .dst-sel {
+        display: none;
+      }
 
-  /* --- Two column grid → single --- */
-  .two-col { grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
+      .menu-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: rgba(11, 36, 71, 0.08);
+      }
 
-  /* --- Charts --- */
-  .cw { height: 200px; }
+      /* --- Ribbon --- */
+      .ribbon {
+        font-size: 9px;
+        padding: 4px 10px;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-  /* --- Data table --- */
-  .tc { gap: 6px; flex-wrap: wrap; }
-  .fb { padding: 5px 10px; font-size: 11px; }
-  .sbox { min-width: 100%; }
-  .tc2 { max-height: 55vh; overflow-y: auto; -webkit-overflow-scrolling: touch; overflow-x: auto; }
-  .dt { font-size: 11px; }
-  .dt th, .dt td { padding: 7px 8px; white-space: nowrap; }
-  .card-bd { padding: 12px; }
+      /* --- Pages --- */
+      .page {
+        padding: 12px 12px 80px 12px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
 
-  /* --- Map overlays --- */
-  .mcp { top: 8px; right: 8px; padding: 10px; min-width: 160px; font-size: 11px; max-height: 50vh; overflow-y: auto; }
-  .mlp { bottom: 70px; left: 8px; padding: 10px; font-size: 11px; max-height: 40vh; overflow-y: auto; }
-  .bmb { font-size: 10.5px; padding: 5px 8px; }
-  .ct { font-size: 9px; }
+      #page-ai {
+        padding: 10px 10px 80px 10px;
+      }
 
-  /* --- AI page --- */
-  .ai-lay { flex-direction: column; gap: 10px; height: auto; overflow: visible; }
-  .ai-sd { width: 100%; height: auto; overflow-y: visible; flex-direction: row; flex-wrap: wrap; gap: 10px; }
-  .ai-sd .mc { flex: 1; min-width: 140px; padding: 12px; }
-  .ai-sd .card { flex: 1; min-width: 140px; padding: 10px !important; }
-  .ai-mn { flex: 1; min-height: 50vh; }
-  .cw2 { height: 60vh; min-height: 300px; }
-  .cm { padding: 10px; }
-  .msg { max-width: 90%; font-size: 12px; padding: 9px 12px; }
-  .cir { padding: 8px 10px; }
-  .ci { font-size: 13px; }
-  .me { font-size: 36px; }
-  .mn { font-size: 12px; }
-  #qq-container .qqb { font-size: 10px; padding: 5px 8px; }
+      #page-map {
+        padding: 0;
+      }
 
-  /* --- Download page --- */
-  .dlh { padding: 22px 16px; border-radius: 14px; margin-bottom: 14px; }
-  .dlh > div:first-child { font-size: 32px; }
-  .dlh > div:nth-child(2) { font-size: 20px; }
-  .dlh > div:nth-child(3) { font-size: 12px; }
-  .dlb { padding: 12px 20px; font-size: 13px; width: 100%; justify-content: center; }
+      /* --- Landing page --- */
+      .l-stats {
+        gap: 20px;
+      }
 
-  /* --- Bottom mobile nav --- */
-  .mobile-nav {
-    display: flex !important;
-    position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-    background: var(--navy); z-index: 9999;
-    justify-content: space-around; align-items: center;
-    border-top: 1px solid rgba(255,255,255,0.15);
-    padding: 0 4px;
-  }
-  .mobile-nav-item {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; flex: 1;
-    color: rgba(255,255,255,0.5); font-size: 18px;
-    cursor: pointer; gap: 2px; padding: 4px 0;
-    transition: color 0.2s;
-  }
-  .mobile-nav-item span.mnl { font-size: 9px; letter-spacing: 0.3px; }
-  .mobile-nav-item.active { color: var(--gold-light); }
+      .l-stat .v {
+        font-size: 26px;
+      }
 
-  /* --- FAB hidden on mobile (nav covers it) --- */
-  .fab-container { display: none !important; }
+      .enter-btn {
+        padding: 12px 36px;
+        font-size: 14px;
+      }
 
-  /* --- Notification --- */
-  .notif { bottom: 70px; right: 12px; font-size: 12px; padding: 10px 14px; }
+      .ld {
+        font-size: 11px;
+        padding: 0 16px;
+        text-align: center;
+      }
 
-  /* --- Cards --- */
-  .card { border-radius: 12px; }
-  .card-hd { padding: 12px 14px; }
-  .card-ttl { font-size: 13px; }
-}
+      /* --- Hero section --- */
+      .hero {
+        padding: 20px;
+        border-radius: 14px;
+        margin-bottom: 14px;
+      }
 
-/* ============================
-   SMALL PHONES (≤480px)
+      .httl {
+        font-size: 20px;
+      }
+
+      .hsub {
+        font-size: 12px;
+      }
+
+      .hstats {
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .hstat .v {
+        font-size: 18px;
+      }
+
+      .hstat .l {
+        font-size: 9px;
+      }
+
+      /* --- Stat cards --- */
+      .sg {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .sc {
+        padding: 14px 12px;
+      }
+
+      .sc-val {
+        font-size: 22px;
+      }
+
+      .sc-lbl {
+        font-size: 9.5px;
+      }
+
+      .sc-sub {
+        font-size: 10.5px;
+      }
+
+      /* --- Two column grid → single --- */
+      .two-col {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      /* --- Charts --- */
+      .cw {
+        height: 200px;
+      }
+
+      /* --- Data table --- */
+      .tc {
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .fb {
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+
+      .sbox {
+        min-width: 100%;
+      }
+
+      .tc2 {
+        max-height: 55vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overflow-x: auto;
+      }
+
+      .dt {
+        font-size: 11px;
+      }
+
+      .dt th,
+      .dt td {
+        padding: 7px 8px;
+        white-space: nowrap;
+      }
+
+      .card-bd {
+        padding: 12px;
+      }
+
+      /* --- Map overlays --- */
+      .mcp {
+        top: 8px;
+        right: 8px;
+        padding: 10px;
+        min-width: 160px;
+        font-size: 11px;
+        max-height: 50vh;
+        overflow-y: auto;
+      }
+
+      .mlp {
+        bottom: 70px;
+        left: 8px;
+        padding: 10px;
+        font-size: 11px;
+        max-height: 40vh;
+        overflow-y: auto;
+      }
+
+      .bmb {
+        font-size: 10.5px;
+        padding: 5px 8px;
+      }
+
+      .ct {
+        font-size: 9px;
+      }
+
+      /* --- AI page --- */
+      .ai-lay {
+        flex-direction: column;
+        gap: 10px;
+        height: auto;
+        overflow: visible;
+      }
+
+      .ai-sd {
+        width: 100%;
+        height: auto;
+        overflow-y: visible;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .ai-sd .mc {
+        flex: 1;
+        min-width: 140px;
+        padding: 12px;
+      }
+
+      .ai-sd .card {
+        flex: 1;
+        min-width: 140px;
+        padding: 10px !important;
+      }
+
+      .ai-mn {
+        flex: 1;
+        min-height: 50vh;
+      }
+
+      .cw2 {
+        height: 60vh;
+        min-height: 300px;
+      }
+
+      .cm {
+        padding: 10px;
+      }
+
+      .msg {
+        max-width: 90%;
+        font-size: 12px;
+        padding: 9px 12px;
+      }
+
+      .cir {
+        padding: 8px 10px;
+      }
+
+      .ci {
+        font-size: 13px;
+      }
+
+      .me {
+        font-size: 36px;
+      }
+
+      .mn {
+        font-size: 12px;
+      }
+
+      #qq-container .qqb {
+        font-size: 10px;
+        padding: 5px 8px;
+      }
+
+      /* --- Download page --- */
+      .dlh {
+        padding: 22px 16px;
+        border-radius: 14px;
+        margin-bottom: 14px;
+      }
+
+      .dlh>div:first-child {
+        font-size: 32px;
+      }
+
+      .dlh>div:nth-child(2) {
+        font-size: 20px;
+      }
+
+      .dlh>div:nth-child(3) {
+        font-size: 12px;
+      }
+
+      .dlb {
+        padding: 12px 20px;
+        font-size: 13px;
+        width: 100%;
+        justify-content: center;
+      }
+
+      /* --- Bottom mobile nav --- */
+      .mobile-nav {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background: var(--navy);
+        z-index: 9999;
+        justify-content: space-around;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 0 4px;
+      }
+
+      .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 18px;
+        cursor: pointer;
+        gap: 2px;
+        padding: 4px 0;
+        transition: color 0.2s;
+      }
+
+      .mobile-nav-item span.mnl {
+        font-size: 9px;
+        letter-spacing: 0.3px;
+      }
+
+      .mobile-nav-item.active {
+        color: var(--gold-light);
+      }
+
+      /* --- FAB hidden on mobile (nav covers it) --- */
+      .fab-container {
+        display: none !important;
+      }
+
+      /* --- Notification --- */
+      .notif {
+        bottom: 70px;
+        right: 12px;
+        font-size: 12px;
+        padding: 10px 14px;
+      }
+
+      /* --- Cards --- */
+      .card {
+        border-radius: 12px;
+      }
+
+      .card-hd {
+        padding: 12px 14px;
+      }
+
+      .card-ttl {
+        font-size: 13px;
+      }
+    }
+
+    /* ============================
+   SMALL PHONES (≤480px) (very be)
    ============================ */
-@media (max-width: 480px) {
-  .sg { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .sc-val { font-size: 20px; }
-  .httl { font-size: 18px; }
-  .tb-ttl { font-size: 12px; max-width: 150px; }
-  .ai-sd { flex-direction: column; }
-  .ai-sd .mc, .ai-sd .card { min-width: unset; width: 100%; }
-  .mcp { min-width: 140px; font-size: 10px; }
-  .mlp { display: none; }
-}
+    @media (max-width: 480px) {
+      .sg {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
 
-/* Desktop — hide mobile nav */
-@media (min-width: 769px) {
-  .mobile-nav { display: none !important; }
-  .sidebar-overlay { display: none !important; }
-}
+      .sc-val {
+        font-size: 20px;
+      }
 
-/* FLOATING AI BUTTON (FAB) */
-.fab-container { position: fixed; bottom: 30px; right: 30px; z-index: 9997; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; }
-.fab-btn { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--navy)); color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; box-shadow: 0 8px 32px rgba(11,36,71,0.4); transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275); border: 2px solid rgba(255,255,255,0.2); animation: fab-float 3s ease-in-out infinite; }
-.fab-btn:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 12px 40px rgba(11,36,71,0.6); }
-.fab-label { position: absolute; right: 75px; background: var(--navy); color: white; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; pointer-events: none; opacity: 0; transform: translateX(10px); transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-.fab-container:hover .fab-label { opacity: 1; transform: translateX(0); }
-.fab-pulse { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--teal); opacity: 0.5; z-index: -1; animation: fab-pulse 2s infinite; }
-/* Sidebar overlay (hidden by default) */
-.sidebar-overlay { display: none; }
-@keyframes fab-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@keyframes fab-pulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.8); opacity: 0; } }
+      .httl {
+        font-size: 18px;
+      }
 
-</style>
+      .tb-ttl {
+        font-size: 12px;
+        max-width: 150px;
+      }
+
+      .ai-sd {
+        flex-direction: column;
+      }
+
+      .ai-sd .mc,
+      .ai-sd .card {
+        min-width: unset;
+        width: 100%;
+      }
+
+      .mcp {
+        min-width: 140px;
+        font-size: 10px;
+      }
+
+      .mlp {
+        display: none;
+      }
+    }
+
+    /* Desktop — hide mobile nav */
+    @media (min-width: 769px) {
+      .mobile-nav {
+        display: none !important;
+      }
+
+      .sidebar-overlay {
+        display: none !important;
+      }
+    }
+
+    /* FLOATING AI BUTTON (FAB) */
+    .fab-container {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 9997;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 15px;
+    }
+
+    .fab-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal), var(--navy));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(11, 36, 71, 0.4);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      animation: fab-float 3s ease-in-out infinite;
+    }
+
+    .fab-btn:hover {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 12px 40px rgba(11, 36, 71, 0.6);
+    }
+
+    .fab-label {
+      position: absolute;
+      right: 75px;
+      background: var(--navy);
+      color: white;
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateX(10px);
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .fab-container:hover .fab-label {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .fab-pulse {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--teal);
+      opacity: 0.5;
+      z-index: -1;
+      animation: fab-pulse 2s infinite;
+    }
+
+    /* Sidebar overlay (hidden by default) */
+    .sidebar-overlay {
+      display: none;
+    }
+
+    @keyframes fab-float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes fab-pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.5;
+      }
+
+      100% {
+        transform: scale(1.8);
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div id="landing">
-  <div class="stars" id="stars"></div>
-  <div class="wave-c"><div class="wave w1"></div><div class="wave w2"></div></div>
-  <div style="margin-bottom:18px;animation:fid 1s ease both;"><img src="data:image/png;base64,IMG_ASSET_1" style="max-height:70px;max-width:100%;object-fit:contain;" alt="CoE SEnSRS IIT Ropar Logos"/></div>
-  <div class="lt">Swan River Survey<br>Intelligence Dashboard</div>
-  <div class="ls">Centre of Excellence SEnSRS &nbsp;·&nbsp; IIT Ropar</div>
-  <div class="ld">Socio-Environmental Sustainability for River Sand-mining &nbsp;|&nbsp; Pre &amp; Post Monsoon Survey 2025 &nbsp;|&nbsp; Rupnagar District</div>
-  <div class="l-stats">
-    <div class="l-stat"><div class="v">835</div><div class="l">Survey Points</div></div>
-    <div class="l-stat"><div class="v">5</div><div class="l">River Sites</div></div>
-    <div class="l-stat"><div class="v">93.9%</div><div class="l">Accretion</div></div>
-    <div class="l-stat"><div class="v">2025</div><div class="l">Survey Year</div></div>
-  </div>
-  <button class="enter-btn" onclick="enterDash()">🚀 Enter Dashboard</button>
-  <div class="lbar"></div>
-</div>
-<div class="notif" id="notif"></div>
-<div id="app">
-  <div class="sidebar">
-    <div class="sb-logo"><div class="ico">🌊</div><div class="ttl">Swan River Survey<br>Dashboard</div><div class="sub">CoE SEnSRS • IIT Ropar • 2025</div></div>
-    <div class="nav-s">
-      <div class="nav-lbl">Navigation</div>
-      <div class="ni active" data-page="home" onclick="showPage('home',this)"><span class="ni-ico">🏠</span> Overview</div>
-      <div class="ni" data-page="data" onclick="showPage('data',this)"><span class="ni-ico">📊</span> Data Explorer</div>
-      <div class="ni" data-page="map" onclick="showPage('map',this)"><span class="ni-ico">🗺️</span> Map Interface</div>
-      <div class="ni" data-page="analytics" onclick="showPage('analytics',this)"><span class="ni-ico">📈</span> Analytics</div>
-      <div class="ni" data-page="download" onclick="showPage('download',this)"><span class="ni-ico">📥</span> Downloads</div>
-      <div class="ni" data-page="ai" onclick="showPage('ai',this)"><span class="ni-ico">🤖</span> AI Assistant</div>
+  <div id="landing">
+    <div class="stars" id="stars"></div>
+    <div class="wave-c">
+      <div class="wave w1"></div>
+      <div class="wave w2"></div>
     </div>
-    <div class="sb-foot">CoE SEnSRS<br>IIT Ropar, Punjab<br>© 2025</div>
-  </div>
-  <div class="main">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:15px;">
-        <div class="menu-btn" onclick="toggleSidebar()" style="cursor:pointer;font-size:20px;display:none;">☰</div>
-        <div class="tb-ttl">Swan River (Swanghat) — Pre &amp; Post Monsoon Survey 2025</div>
+    <div style="margin-bottom:18px;animation:fid 1s ease both;"><img src="data:image/png;base64,IMG_ASSET_1"
+        style="max-height:70px;max-width:100%;object-fit:contain;" alt="CoE SEnSRS IIT Ropar Logos" /></div>
+    <div class="lt">Swan River Survey<br>Intelligence Dashboard</div>
+    <div class="ls">Centre of Excellence SEnSRS &nbsp;·&nbsp; IIT Ropar</div>
+    <div class="ld">Socio-Environmental Sustainability for River Sand-mining &nbsp;|&nbsp; Pre &amp; Post Monsoon Survey
+      2025 &nbsp;|&nbsp; Rupnagar District</div>
+    <div class="l-stats">
+      <div class="l-stat">
+        <div class="v">835</div>
+        <div class="l">Survey Points</div>
       </div>
-      <div class="tb-r">
-        <select class="dst-sel" onchange="notify('📍 '+this.value)">
-          <option>Rupnagar District</option><option>SAS Nagar (Mohali)</option><option>Ropar</option><option>Fatehgarh Sahib</option><option>Patiala</option><option>Ludhiana</option><option>Amritsar</option><option>Jalandhar</option><option>Bathinda</option><option>Hoshiarpur</option>
-        </select>
+      <div class="l-stat">
+        <div class="v">5</div>
+        <div class="l">River Sites</div>
+      </div>
+      <div class="l-stat">
+        <div class="v">93.9%</div>
+        <div class="l">Accretion</div>
+      </div>
+      <div class="l-stat">
+        <div class="v">2025</div>
+        <div class="l">Survey Year</div>
       </div>
     </div>
-    <div class="ribbon">Swan River (Swanghat) Pre &amp; Post Monsoon Survey 2025 &nbsp;|&nbsp; CoE SEnSRS, IIT Ropar &nbsp;|&nbsp; Rupnagar District</div>
-    <div class="pages">
-      <div class="page active" id="page-home">
-        <div class="hero"><div class="htag">🌊 Official Survey Report</div><div class="httl">Swan River Morphological<br>Change Assessment 2025</div><div class="hsub">GPS-based elevation survey across 5 sites in Rupnagar District. Pre and post monsoon measurement to assess morphological changes in the Swan River channel.</div><div class="hstats"><div class="hstat"><div class="v">835</div><div class="l">Total Points</div></div><div class="hstat"><div class="v">+1.218m</div><div class="l">Avg Change</div></div><div class="hstat"><div class="v">93.9%</div><div class="l">Accretion</div></div><div class="hstat"><div class="v">5 Sites</div><div class="l">Locations</div></div></div></div>
-        <div class="sg">
-          <div class="sc" style="--ac:#1A6B8C"><div class="sc-ico">📍</div><div class="sc-lbl">Total Survey Points</div><div class="sc-val">835</div><div class="sc-sub">Across 5 river sites</div></div>
-          <div class="sc" style="--ac:#27AE60"><div class="sc-ico">📈</div><div class="sc-lbl">Avg Pre-Monsoon Elev.</div><div class="sc-val">259.06m</div><div class="sc-sub">Above Mean Sea Level</div></div>
-          <div class="sc" style="--ac:#F39C12"><div class="sc-ico">📉</div><div class="sc-lbl">Avg Post-Monsoon Elev.</div><div class="sc-val">260.28m</div><div class="sc-sub">Above Mean Sea Level</div></div>
-          <div class="sc" style="--ac:#C8A951"><div class="sc-ico">🔄</div><div class="sc-lbl">Avg Elevation Change</div><div class="sc-val">+1.218m</div><div class="sc-sub">Net accretion observed</div></div>
-          <div class="sc" style="--ac:#27AE60"><div class="sc-ico">✅</div><div class="sc-lbl">Accretion Zones</div><div class="sc-val">784</div><div class="sc-sub">93.9% of all points</div></div>
-          <div class="sc" style="--ac:#E84545"><div class="sc-ico">⚠️</div><div class="sc-lbl">Erosion Zones</div><div class="sc-val">51</div><div class="sc-sub">6.1% of all points</div></div>
+    <button class="enter-btn" onclick="enterDash()">🚀 Enter Dashboard</button>
+    <div class="lbar"></div>
+  </div>
+  <div class="notif" id="notif"></div>
+  <div id="app">
+    <div class="sidebar">
+      <div class="sb-logo">
+        <div class="ico">🌊</div>
+        <div class="ttl">Swan River Survey<br>Dashboard</div>
+        <div class="sub">CoE SEnSRS • IIT Ropar • 2025</div>
+      </div>
+      <div class="nav-s">
+        <div class="nav-lbl">Navigation</div>
+        <div class="ni active" data-page="home" onclick="showPage('home',this)"><span class="ni-ico">🏠</span> Overview
         </div>
-        <div class="two-col">
-          <div class="card"><div class="card-hd"><div class="card-ttl">📊 Site-wise Summary</div></div><div class="card-bd" style="padding:0;"><table style="width:100%;font-size:12px;border-collapse:collapse;"><thead><tr style="background:#F8FAFF;"><th style="padding:9px 13px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Site</th><th style="padding:9px;text-align:center;font-size:10px;text-transform:uppercase;color:var(--muted);">Pts</th><th style="padding:9px;text-align:center;font-size:10px;text-transform:uppercase;color:var(--muted);">Pre Avg</th><th style="padding:9px;text-align:center;font-size:10px;text-transform:uppercase;color:var(--muted);">Post Avg</th><th style="padding:9px;text-align:center;font-size:10px;text-transform:uppercase;color:var(--muted);">Δ Avg</th></tr></thead><tbody id="site-tbl-body"></tbody></table></div></div>
-          <div class="card"><div class="card-hd"><div class="card-ttl">📈 Elevation Change Distribution</div></div><div class="card-bd"><div class="cw"><canvas id="diffDistChart"></canvas></div></div></div>
+        <div class="ni" data-page="data" onclick="showPage('data',this)"><span class="ni-ico">📊</span> Data Explorer
         </div>
-        <div class="two-col">
-          <div class="card"><div class="card-hd"><div class="card-ttl">🔵 Pre vs Post — Site Comparison</div></div><div class="card-bd"><div class="cw"><canvas id="prePostChart"></canvas></div></div></div>
-          <div class="card"><div class="card-hd"><div class="card-ttl">🟢 Accretion vs Erosion</div></div><div class="card-bd"><div class="cw"><canvas id="pieChart"></canvas></div></div></div>
+        <div class="ni" data-page="map" onclick="showPage('map',this)"><span class="ni-ico">🗺️</span> Map Interface
+        </div>
+        <div class="ni" data-page="analytics" onclick="showPage('analytics',this)"><span class="ni-ico">📈</span>
+          Analytics</div>
+        <div class="ni" data-page="download" onclick="showPage('download',this)"><span class="ni-ico">📥</span>
+          Downloads</div>
+        <div class="ni" data-page="ai" onclick="showPage('ai',this)"><span class="ni-ico">🤖</span> AI Assistant</div>
+      </div>
+      <div class="sb-foot">CoE SEnSRS<br>IIT Ropar, Punjab<br>© 2025</div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:15px;">
+          <div class="menu-btn" onclick="toggleSidebar()" style="cursor:pointer;font-size:20px;display:none;">☰</div>
+          <div class="tb-ttl">Swan River (Swanghat) — Pre &amp; Post Monsoon Survey 2025</div>
+        </div>
+        <div class="tb-r">
+          <select class="dst-sel" onchange="notify('📍 '+this.value)">
+            <option>Rupnagar District</option>
+            <option>SAS Nagar (Mohali)</option>
+            <option>Ropar</option>
+            <option>Fatehgarh Sahib</option>
+            <option>Patiala</option>
+            <option>Ludhiana</option>
+            <option>Amritsar</option>
+            <option>Jalandhar</option>
+            <option>Bathinda</option>
+            <option>Hoshiarpur</option>
+          </select>
         </div>
       </div>
-      <div class="page" id="page-data">
-        <div class="card">
-          <div class="card-hd"><div class="card-ttl">📋 Complete Survey Data — 835 Points</div><div style="font-size:11.5px;color:var(--muted);">Pre &amp; Post Monsoon 2025</div></div>
-          <div class="card-bd">
-            <div class="tc">
-              <input type="text" class="sbox" id="tblSearch" placeholder="Search name, coordinates..." oninput="filterTable()">
-              <button class="fb active" onclick="setTF('ALL',this)">All</button>
-              <button class="fb" onclick="setTF('PB_SAS_SWN_01',this)">SWN-01</button>
-              <button class="fb" onclick="setTF('PB_SAS_SWN_02',this)">SWN-02</button>
-              <button class="fb" onclick="setTF('PB_SAS_SWN_03',this)">SWN-03</button>
-              <button class="fb" onclick="setTF('PB_SAS_SWN_04',this)">SWN-04</button>
-              <button class="fb" onclick="setTF('PB_SAS_SWN_05',this)">SWN-05</button>
-              <button class="fb" style="background:#E8F8EF;color:#1E8449;" onclick="setTF('POS',this)">📈 Accretion</button>
-              <button class="fb" style="background:#FDEDEC;color:#C0392B;" onclick="setTF('NEG',this)">📉 Erosion</button>
-            </div>
-            <div style="margin-bottom:9px;font-size:12px;color:var(--muted);">Showing <span id="rowCount">835</span> records</div>
-            <div class="tc2"><table class="dt"><thead><tr><th>#</th><th>Site</th><th>Pre-Monsoon (m)</th><th>Post-Monsoon (m)</th><th>Difference (m)</th><th>Latitude</th><th>Longitude</th><th>Status</th></tr></thead><tbody id="data-tbody"></tbody></table></div>
-          </div>
-        </div>
-      </div>
-      <div class="page" id="page-map">
-        <div id="map-status" class="map-ov mst"></div>
-        <div id="leaflet-map"></div>
-        <div class="map-ov mcp">
-          <div class="ct">🗂️ Layers</div>
-          <div class="lr"><span>Pre-Monsoon</span><div class="tg on" id="tg-pre" onclick="toggleLyr('pre',this)"><div class="tgk"></div></div></div>
-          <div class="lr"><span>Post-Monsoon</span><div class="tg on" id="tg-post" onclick="toggleLyr('post',this)"><div class="tgk"></div></div></div>
-          <div class="lr"><span>Difference</span><div class="tg on" id="tg-diff" onclick="toggleLyr('diff',this)"><div class="tgk"></div></div></div>
-          <div class="lr"><span>Study Area</span><div class="tg on" id="tg-study" onclick="toggleLyr('study',this)"><div class="tgk"></div></div></div>
-          <div style="height:1px;background:var(--border);margin:10px 0;"></div>
-          <div class="ct">🗺️ Base Map</div>
-          <button class="bmb" onclick="setBM('satellite',this)">🛰️ Satellite</button>
-          <button class="bmb active" onclick="setBM('streets',this)">🗺️ Streets</button>
-          <button class="bmb" onclick="setBM('topo',this)">🏔️ Topographic</button>
-          <button class="bmb" onclick="setBM('dark',this)">🌑 Dark Mode</button>
-        </div>
-        <div class="map-ov mlp">
-          <div class="ct">📍 Difference Legend</div>
-          <div class="lr2"><div class="ld2" style="background:#27AE60;"></div>Accretion &gt; 1m</div>
-          <div class="lr2"><div class="ld2" style="background:#F39C12;"></div>Accretion 0–1m</div>
-          <div class="lr2"><div class="ld2" style="background:#E74C3C;"></div>Erosion &lt; 0m</div>
-          <div class="lr2"><div class="ld2" style="background:rgba(200,169,81,0.4);border:1.5px solid #C8A951;border-radius:2px;width:14px;height:10px;"></div>Study Area</div>
-          <div style="height:1px;background:var(--border);margin:10px 0;"></div>
-          <div class="ct">🔍 Site Filter</div>
-          <button class="bmb active" id="msf-ALL" onclick="mapFilterSite('ALL',this)">🔵 All Sites</button>
-          <button class="bmb" id="msf-01" onclick="mapFilterSite('PB_SAS_SWN_01',this)">🔴 SWN-01</button>
-          <button class="bmb" id="msf-02" onclick="mapFilterSite('PB_SAS_SWN_02',this)">🟠 SWN-02</button>
-          <button class="bmb" id="msf-03" onclick="mapFilterSite('PB_SAS_SWN_03',this)">🟡 SWN-03</button>
-          <button class="bmb" id="msf-04" onclick="mapFilterSite('PB_SAS_SWN_04',this)">🟢 SWN-04</button>
-          <button class="bmb" id="msf-05" onclick="mapFilterSite('PB_SAS_SWN_05',this)">🔵 SWN-05</button>
-        </div>
-      </div>
-      <div class="page" id="page-analytics">
-        <div class="sg">
-          <div class="sc" style="--ac:#1A6B8C"><div class="sc-ico">📊</div><div class="sc-lbl">Max Post-Monsoon Elev.</div><div class="sc-val">264.07m</div><div class="sc-sub">Highest recorded</div></div>
-          <div class="sc" style="--ac:#27AE60"><div class="sc-ico">📉</div><div class="sc-lbl">Min Post-Monsoon Elev.</div><div class="sc-val">257.26m</div><div class="sc-sub">Lowest recorded</div></div>
-          <div class="sc" style="--ac:#E84545"><div class="sc-ico">⚡</div><div class="sc-lbl">Max Difference</div><div class="sc-val">+173m</div><div class="sc-sub">Outlier at SWN-01 Pt.267</div></div>
-          <div class="sc" style="--ac:#C8A951"><div class="sc-ico">📐</div><div class="sc-lbl">River Reach Surveyed</div><div class="sc-val">~1.5km</div><div class="sc-sub">Lon 76.621–76.637°E</div></div>
-        </div>
-        <div class="two-col" style="margin-bottom:20px;">
-          <div class="card"><div class="card-hd"><div class="card-ttl">📊 Points per Site</div></div><div class="card-bd"><div class="cw"><canvas id="cntChart"></canvas></div></div></div>
-          <div class="card"><div class="card-hd"><div class="card-ttl">📈 Difference Histogram</div></div><div class="card-bd"><div class="cw"><canvas id="histChart"></canvas></div></div></div>
-        </div>
-        <div class="card" style="margin-bottom:20px;"><div class="card-hd"><div class="card-ttl">🏔️ Elevation Profile — Pre vs Post (Sampled)</div></div><div class="card-bd"><div style="height:200px;"><canvas id="profileChart"></canvas></div></div></div>
-        <div class="card"><div class="card-hd"><div class="card-ttl">📊 Accretion Rate by Site</div></div><div class="card-bd" id="prog-content"></div></div>
-      </div>
-      <div class="page" id="page-download">
-        <div class="dlh"><div style="font-size:44px;margin-bottom:14px;">🗺️</div><div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:10px;">Official Survey Layout Map</div><div style="font-size:14px;opacity:0.8;">Swan River Pre &amp; Post Monsoon Survey 2025 — Rupnagar District, Punjab</div></div>
-        <div class="card" style="max-width:780px;margin:0 auto;">
-          <div class="card-hd"><div class="card-ttl">📄 Layout Map — High Resolution JPEG</div><div style="font-size:11.5px;color:var(--muted);">Click to download</div></div>
-          <div class="card-bd" style="text-align:center;">
-            <div style="border-radius:10px;overflow:hidden;box-shadow:0 16px 50px rgba(0,0,0,0.25);margin-bottom:20px;border:3px solid rgba(200,169,81,0.4);"><img src="data:image/png;base64,IMG_ASSET_2" alt="Survey Layout" style="width:100%;display:block;"/>            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;">
-              <div style="background:#F8FAFF;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:22px;">📍</div><div style="font-weight:700;color:var(--navy);">835</div><div style="font-size:11px;color:var(--muted);">Survey Points</div></div>
-              <div style="background:#F8FAFF;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:22px;">🗺️</div><div style="font-weight:700;color:var(--navy);">1:5000</div><div style="font-size:11px;color:var(--muted);">Map Scale</div></div>
-              <div style="background:#F8FAFF;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:22px;">📅</div><div style="font-weight:700;color:var(--navy);">2025</div><div style="font-size:11px;color:var(--muted);">Survey Year</div></div>
-            </div><a href="undefined" download="Swan_River_Survey_Layout_2025.jpg" class="dlb">⬇️ Download Official Layout Map (JPEG)</a>            <div style="margin-top:10px;font-size:11.5px;color:var(--muted);">CoE SEnSRS, IIT Ropar | Pre &amp; Post Monsoon 2025</div>
-          </div>
-        </div>
-      </div>
-      <div class="page" id="page-ai">
-        <div class="ai-lay">
-          <div class="ai-sd">
-            <div class="mc">
-              <span class="me">🤖</span>
-              <div class="mn">Jal Mitra (जल मित्र)</div>
-              <div class="ms"><div class="od"></div> Online &amp; Ready</div>
-              <div style="font-size:10.5px;opacity:0.7;margin-top:5px;">Swan River Survey Assistant</div>
-            </div>
-            <div class="card" style="padding:14px;">
-              <div style="font-size:11.5px;font-weight:800;color:var(--navy);margin-bottom:9px;">🌐 Response Language</div>
-              <div style="display:flex;flex-direction:column;gap:5px;">
-                <button class="lnb active" onclick="setLang('en',this)" style="text-align:left;padding:9px 12px;font-size:13px;">🇬🇧 English</button>
-                <button class="lnb" onclick="setLang('hi',this)" style="text-align:left;padding:9px 12px;font-size:13px;">🇮🇳 Hindi / हिंदी</button>
+      <div class="ribbon">Swan River (Swanghat) Pre &amp; Post Monsoon Survey 2025 &nbsp;|&nbsp; CoE SEnSRS, IIT Ropar
+        &nbsp;|&nbsp; Rupnagar District</div>
+      <div class="pages">
+        <div class="page active" id="page-home">
+          <div class="hero">
+            <div class="htag">🌊 Official Survey Report</div>
+            <div class="httl">Swan River Morphological<br>Change Assessment 2025</div>
+            <div class="hsub">GPS-based elevation survey across 5 sites in Rupnagar District. Pre and post monsoon
+              measurement to assess morphological changes in the Swan River channel.</div>
+            <div class="hstats">
+              <div class="hstat">
+                <div class="v">835</div>
+                <div class="l">Total Points</div>
+              </div>
+              <div class="hstat">
+                <div class="v">+1.218m</div>
+                <div class="l">Avg Change</div>
+              </div>
+              <div class="hstat">
+                <div class="v">93.9%</div>
+                <div class="l">Accretion</div>
+              </div>
+              <div class="hstat">
+                <div class="v">5 Sites</div>
+                <div class="l">Locations</div>
               </div>
             </div>
-            <div class="card" style="padding:14px;">
-              <div style="font-size:11.5px;font-weight:800;color:var(--navy);margin-bottom:9px;">💡 Quick Questions</div>
-              <div id="qq-container"></div>
+          </div>
+          <div class="sg">
+            <div class="sc" style="--ac:#1A6B8C">
+              <div class="sc-ico">📍</div>
+              <div class="sc-lbl">Total Survey Points</div>
+              <div class="sc-val">835</div>
+              <div class="sc-sub">Across 5 river sites</div>
+            </div>
+            <div class="sc" style="--ac:#27AE60">
+              <div class="sc-ico">📈</div>
+              <div class="sc-lbl">Avg Pre-Monsoon Elev.</div>
+              <div class="sc-val">259.06m</div>
+              <div class="sc-sub">Above Mean Sea Level</div>
+            </div>
+            <div class="sc" style="--ac:#F39C12">
+              <div class="sc-ico">📉</div>
+              <div class="sc-lbl">Avg Post-Monsoon Elev.</div>
+              <div class="sc-val">260.28m</div>
+              <div class="sc-sub">Above Mean Sea Level</div>
+            </div>
+            <div class="sc" style="--ac:#C8A951">
+              <div class="sc-ico">🔄</div>
+              <div class="sc-lbl">Avg Elevation Change</div>
+              <div class="sc-val">+1.218m</div>
+              <div class="sc-sub">Net accretion observed</div>
+            </div>
+            <div class="sc" style="--ac:#27AE60">
+              <div class="sc-ico">✅</div>
+              <div class="sc-lbl">Accretion Zones</div>
+              <div class="sc-val">784</div>
+              <div class="sc-sub">93.9% of all points</div>
+            </div>
+            <div class="sc" style="--ac:#E84545">
+              <div class="sc-ico">⚠️</div>
+              <div class="sc-lbl">Erosion Zones</div>
+              <div class="sc-val">51</div>
+              <div class="sc-sub">6.1% of all points</div>
             </div>
           </div>
-          <div class="ai-mn">
-            <div class="cw2">
-              <div class="chd">
-                <div style="font-size:26px;">🌊</div>
-                <div>
-                  <div style="font-weight:800;font-size:14px;">Jal Mitra — River Survey Assistant</div>
-                  <div style="font-size:10.5px;opacity:0.65;">English &amp; Hindi • Swan River Survey 2025 Expert</div>
+          <div class="two-col">
+            <div class="card">
+              <div class="card-hd">
+                <div class="card-ttl">📊 Site-wise Summary</div>
+              </div>
+              <div class="card-bd" style="padding:0;">
+                <table style="width:100%;font-size:12px;border-collapse:collapse;">
+                  <thead>
+                    <tr style="background:#F8FAFF;">
+                      <th
+                        style="padding:9px 13px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">
+                        Site</th>
+                      <th
+                        style="padding:9px;text-align:center;font-size:10px;text-transform:uppercase;color:var(--muted);">
+                        Pts</th>
+                      <th
+                        style="padding:9px;text-align:center;font-size:10px;text-transform:uppercase;color:var(--muted);">
+                        Pre Avg</th>
+                      <th
+                        style="padding:9px;text-align:center;font-size:10px;text-transform:uppercase;color:var(--muted);">
+                        Post Avg</th>
+                      <th
+                        style="padding:9px;text-align:center;font-size:10px;text-transform:uppercase;color:var(--muted);">
+                        Δ Avg</th>
+                    </tr>
+                  </thead>
+                  <tbody id="site-tbl-body"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hd">
+                <div class="card-ttl">📈 Elevation Change Distribution</div>
+              </div>
+              <div class="card-bd">
+                <div class="cw"><canvas id="diffDistChart"></canvas></div>
+              </div>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="card">
+              <div class="card-hd">
+                <div class="card-ttl">🔵 Pre vs Post — Site Comparison</div>
+              </div>
+              <div class="card-bd">
+                <div class="cw"><canvas id="prePostChart"></canvas></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hd">
+                <div class="card-ttl">🟢 Accretion vs Erosion</div>
+              </div>
+              <div class="card-bd">
+                <div class="cw"><canvas id="pieChart"></canvas></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="page" id="page-data">
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-ttl">📋 Complete Survey Data — 835 Points</div>
+              <div style="font-size:11.5px;color:var(--muted);">Pre &amp; Post Monsoon 2025</div>
+            </div>
+            <div class="card-bd">
+              <div class="tc">
+                <input type="text" class="sbox" id="tblSearch" placeholder="Search name, coordinates..."
+                  oninput="filterTable()">
+                <button class="fb active" onclick="setTF('ALL',this)">All</button>
+                <button class="fb" onclick="setTF('PB_SAS_SWN_01',this)">SWN-01</button>
+                <button class="fb" onclick="setTF('PB_SAS_SWN_02',this)">SWN-02</button>
+                <button class="fb" onclick="setTF('PB_SAS_SWN_03',this)">SWN-03</button>
+                <button class="fb" onclick="setTF('PB_SAS_SWN_04',this)">SWN-04</button>
+                <button class="fb" onclick="setTF('PB_SAS_SWN_05',this)">SWN-05</button>
+                <button class="fb" style="background:#E8F8EF;color:#1E8449;" onclick="setTF('POS',this)">📈
+                  Accretion</button>
+                <button class="fb" style="background:#FDEDEC;color:#C0392B;" onclick="setTF('NEG',this)">📉
+                  Erosion</button>
+              </div>
+              <div style="margin-bottom:9px;font-size:12px;color:var(--muted);">Showing <span id="rowCount">835</span>
+                records</div>
+              <div class="tc2">
+                <table class="dt">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Site</th>
+                      <th>Pre-Monsoon (m)</th>
+                      <th>Post-Monsoon (m)</th>
+                      <th>Difference (m)</th>
+                      <th>Latitude</th>
+                      <th>Longitude</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="data-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="page" id="page-map">
+          <div id="map-status" class="map-ov mst"></div>
+          <div id="leaflet-map"></div>
+          <div class="map-ov mcp">
+            <div class="ct">🗂️ Layers</div>
+            <div class="lr"><span>Pre-Monsoon</span>
+              <div class="tg on" id="tg-pre" onclick="toggleLyr('pre',this)">
+                <div class="tgk"></div>
+              </div>
+            </div>
+            <div class="lr"><span>Post-Monsoon</span>
+              <div class="tg on" id="tg-post" onclick="toggleLyr('post',this)">
+                <div class="tgk"></div>
+              </div>
+            </div>
+            <div class="lr"><span>Difference</span>
+              <div class="tg on" id="tg-diff" onclick="toggleLyr('diff',this)">
+                <div class="tgk"></div>
+              </div>
+            </div>
+            <div class="lr"><span>Study Area</span>
+              <div class="tg on" id="tg-study" onclick="toggleLyr('study',this)">
+                <div class="tgk"></div>
+              </div>
+            </div>
+            <div style="height:1px;background:var(--border);margin:10px 0;"></div>
+            <div class="ct">🗺️ Base Map</div>
+            <button class="bmb" onclick="setBM('satellite',this)">🛰️ Satellite</button>
+            <button class="bmb active" onclick="setBM('streets',this)">🗺️ Streets</button>
+            <button class="bmb" onclick="setBM('topo',this)">🏔️ Topographic</button>
+            <button class="bmb" onclick="setBM('dark',this)">🌑 Dark Mode</button>
+          </div>
+          <div class="map-ov mlp">
+            <div class="ct">📍 Difference Legend</div>
+            <div class="lr2">
+              <div class="ld2" style="background:#27AE60;"></div>Accretion &gt; 1m
+            </div>
+            <div class="lr2">
+              <div class="ld2" style="background:#F39C12;"></div>Accretion 0–1m
+            </div>
+            <div class="lr2">
+              <div class="ld2" style="background:#E74C3C;"></div>Erosion &lt; 0m
+            </div>
+            <div class="lr2">
+              <div class="ld2"
+                style="background:rgba(200,169,81,0.4);border:1.5px solid #C8A951;border-radius:2px;width:14px;height:10px;">
+              </div>Study Area
+            </div>
+            <div style="height:1px;background:var(--border);margin:10px 0;"></div>
+            <div class="ct">🔍 Site Filter</div>
+            <button class="bmb active" id="msf-ALL" onclick="mapFilterSite('ALL',this)">🔵 All Sites</button>
+            <button class="bmb" id="msf-01" onclick="mapFilterSite('PB_SAS_SWN_01',this)">🔴 SWN-01</button>
+            <button class="bmb" id="msf-02" onclick="mapFilterSite('PB_SAS_SWN_02',this)">🟠 SWN-02</button>
+            <button class="bmb" id="msf-03" onclick="mapFilterSite('PB_SAS_SWN_03',this)">🟡 SWN-03</button>
+            <button class="bmb" id="msf-04" onclick="mapFilterSite('PB_SAS_SWN_04',this)">🟢 SWN-04</button>
+            <button class="bmb" id="msf-05" onclick="mapFilterSite('PB_SAS_SWN_05',this)">🔵 SWN-05</button>
+          </div>
+        </div>
+        <div class="page" id="page-analytics">
+          <div class="sg">
+            <div class="sc" style="--ac:#1A6B8C">
+              <div class="sc-ico">📊</div>
+              <div class="sc-lbl">Max Post-Monsoon Elev.</div>
+              <div class="sc-val">264.07m</div>
+              <div class="sc-sub">Highest recorded</div>
+            </div>
+            <div class="sc" style="--ac:#27AE60">
+              <div class="sc-ico">📉</div>
+              <div class="sc-lbl">Min Post-Monsoon Elev.</div>
+              <div class="sc-val">257.26m</div>
+              <div class="sc-sub">Lowest recorded</div>
+            </div>
+            <div class="sc" style="--ac:#E84545">
+              <div class="sc-ico">⚡</div>
+              <div class="sc-lbl">Max Difference</div>
+              <div class="sc-val">+173m</div>
+              <div class="sc-sub">Outlier at SWN-01 Pt.267</div>
+            </div>
+            <div class="sc" style="--ac:#C8A951">
+              <div class="sc-ico">📐</div>
+              <div class="sc-lbl">River Reach Surveyed</div>
+              <div class="sc-val">~1.5km</div>
+              <div class="sc-sub">Lon 76.621–76.637°E</div>
+            </div>
+          </div>
+          <div class="two-col" style="margin-bottom:20px;">
+            <div class="card">
+              <div class="card-hd">
+                <div class="card-ttl">📊 Points per Site</div>
+              </div>
+              <div class="card-bd">
+                <div class="cw"><canvas id="cntChart"></canvas></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hd">
+                <div class="card-ttl">📈 Difference Histogram</div>
+              </div>
+              <div class="card-bd">
+                <div class="cw"><canvas id="histChart"></canvas></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:20px;">
+            <div class="card-hd">
+              <div class="card-ttl">🏔️ Elevation Profile — Pre vs Post (Sampled)</div>
+            </div>
+            <div class="card-bd">
+              <div style="height:200px;"><canvas id="profileChart"></canvas></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-ttl">📊 Accretion Rate by Site</div>
+            </div>
+            <div class="card-bd" id="prog-content"></div>
+          </div>
+        </div>
+        <div class="page" id="page-download">
+          <div class="dlh">
+            <div style="font-size:44px;margin-bottom:14px;">🗺️</div>
+            <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:10px;">
+              Official Survey Layout Map</div>
+            <div style="font-size:14px;opacity:0.8;">Swan River Pre &amp; Post Monsoon Survey 2025 — Rupnagar District,
+              Punjab</div>
+          </div>
+          <div class="card" style="max-width:780px;margin:0 auto;">
+            <div class="card-hd">
+              <div class="card-ttl">📄 Layout Map — High Resolution JPEG</div>
+              <div style="font-size:11.5px;color:var(--muted);">Click to download</div>
+            </div>
+            <div class="card-bd" style="text-align:center;">
+              <div
+                style="border-radius:10px;overflow:hidden;box-shadow:0 16px 50px rgba(0,0,0,0.25);margin-bottom:20px;border:3px solid rgba(200,169,81,0.4);">
+                <img src="data:image/png;base64,IMG_ASSET_2" alt="Survey Layout" style="width:100%;display:block;" />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;">
+                <div style="background:#F8FAFF;border-radius:10px;padding:14px;text-align:center;">
+                  <div style="font-size:22px;">📍</div>
+                  <div style="font-weight:700;color:var(--navy);">835</div>
+                  <div style="font-size:11px;color:var(--muted);">Survey Points</div>
+                </div>
+                <div style="background:#F8FAFF;border-radius:10px;padding:14px;text-align:center;">
+                  <div style="font-size:22px;">🗺️</div>
+                  <div style="font-weight:700;color:var(--navy);">1:5000</div>
+                  <div style="font-size:11px;color:var(--muted);">Map Scale</div>
+                </div>
+                <div style="background:#F8FAFF;border-radius:10px;padding:14px;text-align:center;">
+                  <div style="font-size:22px;">📅</div>
+                  <div style="font-weight:700;color:var(--navy);">2025</div>
+                  <div style="font-size:11px;color:var(--muted);">Survey Year</div>
+                </div>
+              </div><a href="undefined" download="Swan_River_Survey_Layout_2025.jpg" class="dlb">⬇️ Download Official
+                Layout Map (JPEG)</a>
+              <div style="margin-top:10px;font-size:11.5px;color:var(--muted);">CoE SEnSRS, IIT Ropar | Pre &amp; Post
+                Monsoon 2025</div>
+            </div>
+          </div>
+        </div>
+        <div class="page" id="page-ai">
+          <div class="ai-lay">
+            <div class="ai-sd">
+              <div class="mc">
+                <span class="me">🤖</span>
+                <div class="mn">Jal Mitra (जल मित्र)</div>
+                <div class="ms">
+                  <div class="od"></div> Online &amp; Ready
+                </div>
+                <div style="font-size:10.5px;opacity:0.7;margin-top:5px;">Swan River Survey Assistant</div>
+              </div>
+              <div class="card" style="padding:14px;">
+                <div style="font-size:11.5px;font-weight:800;color:var(--navy);margin-bottom:9px;">🌐 Response Language
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <button class="lnb active" onclick="setLang('en',this)"
+                    style="text-align:left;padding:9px 12px;font-size:13px;">🇬🇧 English</button>
+                  <button class="lnb" onclick="setLang('hi',this)"
+                    style="text-align:left;padding:9px 12px;font-size:13px;">🇮🇳 Hindi / हिंदी</button>
                 </div>
               </div>
-              <div class="cm" id="chat-msgs"></div>
-              <div class="cir">
-                <textarea class="ci" id="chat-in" placeholder="Type your question here... (any language)" rows="1" onkeydown="chatKey(event)" oninput="autoSz(this)"></textarea>
-                <button class="sndb" onclick="sendMsg()">➤</button>
+              <div class="card" style="padding:14px;">
+                <div style="font-size:11.5px;font-weight:800;color:var(--navy);margin-bottom:9px;">💡 Quick Questions
+                </div>
+                <div id="qq-container"></div>
+              </div>
+            </div>
+            <div class="ai-mn">
+              <div class="cw2">
+                <div class="chd">
+                  <div style="font-size:26px;">🌊</div>
+                  <div>
+                    <div style="font-weight:800;font-size:14px;">Jal Mitra — River Survey Assistant</div>
+                    <div style="font-size:10.5px;opacity:0.65;">English &amp; Hindi • Swan River Survey 2025 Expert
+                    </div>
+                  </div>
+                </div>
+                <div class="cm" id="chat-msgs"></div>
+                <div class="cir">
+                  <textarea class="ci" id="chat-in" placeholder="Type your question here... (any language)" rows="1"
+                    onkeydown="chatKey(event)" oninput="autoSz(this)"></textarea>
+                  <button class="sndb" onclick="sendMsg()">➤</button>
+                </div>
               </div>
             </div>
           </div>
@@ -534,27 +2402,31 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);}
       </div>
     </div>
   </div>
-</div>
 
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()" style="display:none;"></div>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()" style="display:none;"></div>
 
-<div class="mobile-nav" id="mobile-nav">
-  <div class="mobile-nav-item active" data-page="home" onclick="showPage('home',this)">🏠<span class="mnl">Home</span></div>
-  <div class="mobile-nav-item" data-page="data" onclick="showPage('data',this)">📊<span class="mnl">Data</span></div>
-  <div class="mobile-nav-item" data-page="map" onclick="showPage('map',this)">🗺️<span class="mnl">Map</span></div>
-  <div class="mobile-nav-item" data-page="analytics" onclick="showPage('analytics',this)">📈<span class="mnl">Stats</span></div>
-  <div class="mobile-nav-item" data-page="download" onclick="showPage('download',this)">📥<span class="mnl">Download</span></div>
-  <div class="mobile-nav-item" data-page="ai" onclick="showPage('ai',this)">🤖<span class="mnl">Jal Mitra</span></div>
-</div>
+  <div class="mobile-nav" id="mobile-nav">
+    <div class="mobile-nav-item active" data-page="home" onclick="showPage('home',this)">🏠<span class="mnl">Home</span>
+    </div>
+    <div class="mobile-nav-item" data-page="data" onclick="showPage('data',this)">📊<span class="mnl">Data</span></div>
+    <div class="mobile-nav-item" data-page="map" onclick="showPage('map',this)">🗺️<span class="mnl">Map</span></div>
+    <div class="mobile-nav-item" data-page="analytics" onclick="showPage('analytics',this)">📈<span
+        class="mnl">Stats</span></div>
+    <div class="mobile-nav-item" data-page="download" onclick="showPage('download',this)">📥<span
+        class="mnl">Download</span></div>
+    <div class="mobile-nav-item" data-page="ai" onclick="showPage('ai',this)">🤖<span class="mnl">Jal Mitra</span></div>
+  </div>
 
-<div class="fab-container" id="fab-ai" onclick="showPage('ai')">
-  <div class="fab-label">Chat with Jal Mitra AI</div>
-  <div class="fab-pulse"></div>
-  <div class="fab-btn">🌊</div>
-</div>
 
-<script src="assets.js"></script>
-<script src="survey_data.js"></script>
-<script src="scripts.js"></script>
+  <div class="fab-container" id="fab-ai" onclick="showPage('ai')">
+    <div class="fab-label">Chat with Jal Mitra AI</div>
+    <div class="fab-pulse"></div>
+    <div class="fab-btn">🌊</div>
+  </div>
+
+  <script src="assets.js"></script>
+  <script src="survey_data.js"></script>
+  <script src="scripts.js"></script>
 </body>
+
 </html>
