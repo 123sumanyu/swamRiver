@@ -67,21 +67,20 @@ function notify(msg){
 let currentSite='ALL',mapReady=false,analyticsReady=false;
 
 function showPage(p, el) {
-  // Update UI
+  // Update page display
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   const targetPage = document.getElementById('page-' + p);
   if (targetPage) targetPage.classList.add('active');
-  
+
+  // Update desktop sidebar nav
   document.querySelectorAll('.ni[data-page]').forEach(x => x.classList.remove('active'));
   const navItem = document.querySelector(`.ni[data-page="${p}"]`);
   if (navItem) navItem.classList.add('active');
 
-  // Update mobile nav
-  document.querySelectorAll('.mobile-nav-item').forEach(x => x.classList.remove('active'));
-  const mobItems = { 'home': 0, 'map': 1, 'ai': 2, 'download': 3 };
-  if (mobItems[p] !== undefined) {
-    document.querySelectorAll('.mobile-nav-item')[mobItems[p]].classList.add('active');
-  }
+  // Update mobile bottom nav by data-page attribute
+  document.querySelectorAll('.mobile-nav-item[data-page]').forEach(x => x.classList.remove('active'));
+  const mobNavItem = document.querySelector(`.mobile-nav-item[data-page="${p}"]`);
+  if (mobNavItem) mobNavItem.classList.add('active');
 
   // Set hash
   if (window.location.hash !== '#' + p) {
@@ -91,9 +90,11 @@ function showPage(p, el) {
   // Load specific page data
   if (p === 'map') initMap();
   if (p === 'analytics' && !analyticsReady) { analyticsReady = true; initAnalytics(); }
-  
-  // Close mobile sidebar if open
+
+  // Close mobile sidebar & overlay
   document.querySelector('.sidebar').classList.remove('mobile-open');
+  const ov = document.getElementById('sidebar-overlay');
+  if (ov) ov.style.display = 'none';
 }
 
 // Handle Hash Navigation
@@ -104,7 +105,10 @@ function handleHash() {
 window.onhashchange = handleHash;
 
 function toggleSidebar() {
-  document.querySelector('.sidebar').classList.toggle('mobile-open');
+  const sb = document.querySelector('.sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  const isOpen = sb.classList.toggle('mobile-open');
+  if (ov) ov.style.display = isOpen ? 'block' : 'none';
 }
 
 

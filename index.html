@@ -187,41 +187,162 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);}
 @media (max-width: 1024px) {
   :root { --sidebar-w: 200px; }
   .hsub { font-size: 13px; }
+  .httl { font-size: 22px; }
 }
 
+/* ============================
+   TABLET & MOBILE (≤768px)
+   ============================ */
 @media (max-width: 768px) {
   :root { --sidebar-w: 0px; }
-  .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-  .sidebar.mobile-open { transform: translateX(0); width: 230px; }
+
+  /* --- Sidebar --- */
+  .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; width: 260px !important; z-index: 200; }
+  .sidebar.mobile-open { transform: translateX(0); }
+  .sidebar-overlay { display: block !important; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 199; }
+
+  /* --- Main area --- */
   .main { margin-left: 0; }
-  .topbar { padding: 0 15px; }
-  .two-col { grid-template-columns: 1fr; }
-  .ai-lay { flex-direction: column; }
-  .ai-sd { width: 100%; height: auto; }
-  
-  /* Bottom Nav for Mobile */
-  .mobile-nav { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: var(--navy); z-index: 9999; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); }
-  .mobile-nav-item { color: rgba(255,255,255,0.6); font-size: 20px; cursor: pointer; }
+  html, body { overflow: hidden; }
+
+  /* --- Topbar --- */
+  .topbar { padding: 0 12px; height: 52px; gap: 8px; }
+  .tb-ttl { font-size: 13px; line-height: 1.3; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dst-sel { display: none; }
+  .menu-btn { display: flex !important; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; background: rgba(11,36,71,0.08); }
+
+  /* --- Ribbon --- */
+  .ribbon { font-size: 9px; padding: 4px 10px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* --- Pages --- */
+  .page { padding: 12px 12px 80px 12px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  #page-ai { padding: 10px 10px 80px 10px; }
+  #page-map { padding: 0; }
+
+  /* --- Landing page --- */
+  .l-stats { gap: 20px; }
+  .l-stat .v { font-size: 26px; }
+  .enter-btn { padding: 12px 36px; font-size: 14px; }
+  .ld { font-size: 11px; padding: 0 16px; text-align: center; }
+
+  /* --- Hero section --- */
+  .hero { padding: 20px; border-radius: 14px; margin-bottom: 14px; }
+  .httl { font-size: 20px; }
+  .hsub { font-size: 12px; }
+  .hstats { gap: 16px; margin-top: 16px; }
+  .hstat .v { font-size: 18px; }
+  .hstat .l { font-size: 9px; }
+
+  /* --- Stat cards --- */
+  .sg { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .sc { padding: 14px 12px; }
+  .sc-val { font-size: 22px; }
+  .sc-lbl { font-size: 9.5px; }
+  .sc-sub { font-size: 10.5px; }
+
+  /* --- Two column grid → single --- */
+  .two-col { grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
+
+  /* --- Charts --- */
+  .cw { height: 200px; }
+
+  /* --- Data table --- */
+  .tc { gap: 6px; flex-wrap: wrap; }
+  .fb { padding: 5px 10px; font-size: 11px; }
+  .sbox { min-width: 100%; }
+  .tc2 { max-height: 55vh; overflow-y: auto; -webkit-overflow-scrolling: touch; overflow-x: auto; }
+  .dt { font-size: 11px; }
+  .dt th, .dt td { padding: 7px 8px; white-space: nowrap; }
+  .card-bd { padding: 12px; }
+
+  /* --- Map overlays --- */
+  .mcp { top: 8px; right: 8px; padding: 10px; min-width: 160px; font-size: 11px; max-height: 50vh; overflow-y: auto; }
+  .mlp { bottom: 70px; left: 8px; padding: 10px; font-size: 11px; max-height: 40vh; overflow-y: auto; }
+  .bmb { font-size: 10.5px; padding: 5px 8px; }
+  .ct { font-size: 9px; }
+
+  /* --- AI page --- */
+  .ai-lay { flex-direction: column; gap: 10px; height: auto; overflow: visible; }
+  .ai-sd { width: 100%; height: auto; overflow-y: visible; flex-direction: row; flex-wrap: wrap; gap: 10px; }
+  .ai-sd .mc { flex: 1; min-width: 140px; padding: 12px; }
+  .ai-sd .card { flex: 1; min-width: 140px; padding: 10px !important; }
+  .ai-mn { flex: 1; min-height: 50vh; }
+  .cw2 { height: 60vh; min-height: 300px; }
+  .cm { padding: 10px; }
+  .msg { max-width: 90%; font-size: 12px; padding: 9px 12px; }
+  .cir { padding: 8px 10px; }
+  .ci { font-size: 13px; }
+  .me { font-size: 36px; }
+  .mn { font-size: 12px; }
+  #qq-container .qqb { font-size: 10px; padding: 5px 8px; }
+
+  /* --- Download page --- */
+  .dlh { padding: 22px 16px; border-radius: 14px; margin-bottom: 14px; }
+  .dlh > div:first-child { font-size: 32px; }
+  .dlh > div:nth-child(2) { font-size: 20px; }
+  .dlh > div:nth-child(3) { font-size: 12px; }
+  .dlb { padding: 12px 20px; font-size: 13px; width: 100%; justify-content: center; }
+
+  /* --- Bottom mobile nav --- */
+  .mobile-nav {
+    display: flex !important;
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+    background: var(--navy); z-index: 9999;
+    justify-content: space-around; align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding: 0 4px;
+  }
+  .mobile-nav-item {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; flex: 1;
+    color: rgba(255,255,255,0.5); font-size: 18px;
+    cursor: pointer; gap: 2px; padding: 4px 0;
+    transition: color 0.2s;
+  }
+  .mobile-nav-item span.mnl { font-size: 9px; letter-spacing: 0.3px; }
   .mobile-nav-item.active { color: var(--gold-light); }
-  .page { padding: 15px; padding-bottom: 80px; }
-  
-  /* FAB Adjustment */
-  .fab-container { bottom: 80px; right: 15px; }
-  .menu-btn { display: block !important; }
+
+  /* --- FAB hidden on mobile (nav covers it) --- */
+  .fab-container { display: none !important; }
+
+  /* --- Notification --- */
+  .notif { bottom: 70px; right: 12px; font-size: 12px; padding: 10px 14px; }
+
+  /* --- Cards --- */
+  .card { border-radius: 12px; }
+  .card-hd { padding: 12px 14px; }
+  .card-ttl { font-size: 13px; }
 }
 
+/* ============================
+   SMALL PHONES (≤480px)
+   ============================ */
+@media (max-width: 480px) {
+  .sg { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sc-val { font-size: 20px; }
+  .httl { font-size: 18px; }
+  .tb-ttl { font-size: 12px; max-width: 150px; }
+  .ai-sd { flex-direction: column; }
+  .ai-sd .mc, .ai-sd .card { min-width: unset; width: 100%; }
+  .mcp { min-width: 140px; font-size: 10px; }
+  .mlp { display: none; }
+}
+
+/* Desktop — hide mobile nav */
 @media (min-width: 769px) {
-  .mobile-nav { display: none; }
+  .mobile-nav { display: none !important; }
+  .sidebar-overlay { display: none !important; }
 }
 
 /* FLOATING AI BUTTON (FAB) */
 .fab-container { position: fixed; bottom: 30px; right: 30px; z-index: 9997; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; }
-.fab-btn { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--navy)); color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; box-shadow: 0 8px 32px rgba(11, 36, 71, 0.4); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 2px solid rgba(255,255,255,0.2); animation: fab-float 3s ease-in-out infinite; }
-.fab-btn:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 12px 40px rgba(11, 36, 71, 0.6); }
+.fab-btn { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--navy)); color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; box-shadow: 0 8px 32px rgba(11,36,71,0.4); transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275); border: 2px solid rgba(255,255,255,0.2); animation: fab-float 3s ease-in-out infinite; }
+.fab-btn:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 12px 40px rgba(11,36,71,0.6); }
 .fab-label { position: absolute; right: 75px; background: var(--navy); color: white; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; pointer-events: none; opacity: 0; transform: translateX(10px); transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 .fab-container:hover .fab-label { opacity: 1; transform: translateX(0); }
 .fab-pulse { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--teal); opacity: 0.5; z-index: -1; animation: fab-pulse 2s infinite; }
-
+/* Sidebar overlay (hidden by default) */
+.sidebar-overlay { display: none; }
 @keyframes fab-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 @keyframes fab-pulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.8); opacity: 0; } }
 
@@ -415,11 +536,15 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);}
   </div>
 </div>
 
-<div class="mobile-nav">
-  <div class="mobile-nav-item active" onclick="showPage('home')" title="Home">🏠</div>
-  <div class="mobile-nav-item" onclick="showPage('map')" title="Map">🗺️</div>
-  <div class="mobile-nav-item" onclick="showPage('ai')" title="Jal Mitra AI">🤖</div>
-  <div class="mobile-nav-item" onclick="showPage('download')" title="Data">📊</div>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()" style="display:none;"></div>
+
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-item active" data-page="home" onclick="showPage('home',this)">🏠<span class="mnl">Home</span></div>
+  <div class="mobile-nav-item" data-page="data" onclick="showPage('data',this)">📊<span class="mnl">Data</span></div>
+  <div class="mobile-nav-item" data-page="map" onclick="showPage('map',this)">🗺️<span class="mnl">Map</span></div>
+  <div class="mobile-nav-item" data-page="analytics" onclick="showPage('analytics',this)">📈<span class="mnl">Stats</span></div>
+  <div class="mobile-nav-item" data-page="download" onclick="showPage('download',this)">📥<span class="mnl">Download</span></div>
+  <div class="mobile-nav-item" data-page="ai" onclick="showPage('ai',this)">🤖<span class="mnl">Jal Mitra</span></div>
 </div>
 
 <div class="fab-container" id="fab-ai" onclick="showPage('ai')">
