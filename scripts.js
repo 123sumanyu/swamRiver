@@ -444,6 +444,7 @@ async function sendMsg(){
   if(!txt) return;
   addUser(txt);
   inp.value = ''; inp.style.height = 'auto';
+  inp.focus(); // keep keyboard open on mobile
   addTyping();
   
   try {

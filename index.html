@@ -1419,6 +1419,7 @@
         background: rgba(0, 0, 0, 0.5);
         z-index: 199;
       }
+
       .sidebar-overlay.visible {
         display: block !important;
       }
@@ -1478,20 +1479,24 @@
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
       }
+
       .page {
         padding: 12px 12px 80px 12px;
         height: auto !important;
         overflow-y: visible !important;
       }
+
       .page.active {
         display: block;
         min-height: 100%;
       }
+
       #page-ai {
         padding: 10px 10px 80px 10px;
         overflow-y: auto !important;
         height: 100% !important;
       }
+
       #page-map {
         padding: 0;
         height: 100% !important;
@@ -1646,69 +1651,98 @@
         font-size: 9px;
       }
 
-      /* --- AI page --- */
+      /* --- AI page: fixed layout so input stays pinned --- */
       #page-ai {
-        display: flex;
+        padding: 8px 8px 68px 8px !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        display: flex !important;
         flex-direction: column;
+        box-sizing: border-box;
       }
+
       .ai-lay {
-        flex-direction: column;
-        gap: 10px;
         flex: 1;
-        overflow: visible;
-        height: auto;
+        min-height: 0;
+        flex-direction: column;
+        gap: 8px;
+        overflow: hidden;
+        height: 100%;
       }
+
       .ai-sd {
         width: 100%;
         height: auto;
-        overflow-y: visible;
-        flex-direction: column;
-        gap: 8px;
         flex-shrink: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+        overflow: visible;
       }
+
       .ai-sd .mc {
-        padding: 12px;
+        flex: 1;
+        min-width: 120px;
+        padding: 10px;
         text-align: center;
       }
+
       .ai-sd .card {
-        padding: 10px !important;
+        flex: 1;
+        min-width: 120px;
+        padding: 8px !important;
       }
-      /* Hide quick questions sidebar on mobile to save space */
+
+      /* Hide quick questions panel on mobile */
       .ai-sd .card:last-child {
         display: none;
       }
+
       .ai-mn {
-        flex: none;
+        flex: 1;
+        min-height: 0;
         width: 100%;
-      }
-      .cw2 {
-        height: 52vh;
-        min-height: 280px;
         display: flex;
         flex-direction: column;
+        overflow: hidden;
       }
-      .cm {
-        padding: 10px;
+
+      .cw2 {
         flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100% !important;
+      }
+
+      .cm {
+        flex: 1;
+        min-height: 0;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        padding: 10px;
       }
+
       .cir {
-        padding: 8px 10px;
         flex-shrink: 0;
-        position: relative;
+        padding: 8px 10px;
+        background: #fff;
+        border-top: 1px solid var(--border);
         z-index: 10;
       }
+
       .ci {
-        font-size: 16px; /* 16px prevents iOS auto-zoom */
+        font-size: 16px; /* prevents iOS auto-zoom */
         -webkit-appearance: none;
       }
+
       .msg {
         max-width: 90%;
         font-size: 12px;
         padding: 9px 12px;
       }
-      .me { font-size: 36px; }
+
+      .me { font-size: 30px; }
       .mn { font-size: 12px; }
       #qq-container .qqb { font-size: 10px; padding: 5px 8px; }
 
