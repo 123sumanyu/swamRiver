@@ -6,17 +6,49 @@ const SS = n => n.replace('PB_SAS_','');
 const GEOJSON_URLS = {diff:'https://raw.githubusercontent.com/DEVANSHNEGI04/elevation_dashboard/refs/heads/main/DIFFERENCE%20_FeaturesToJSON.geojson',study:'https://raw.githubusercontent.com/DEVANSHNEGI04/elevation_dashboard/refs/heads/main/STUDY_AREA%20(FI_FeaturesToJSO.geojson',post:'https://raw.githubusercontent.com/DEVANSHNEGI04/elevation_dashboard/refs/heads/main/post_points_FeaturesToJSON.geojson',pre:'https://raw.githubusercontent.com/DEVANSHNEGI04/elevation_dashboard/refs/heads/main/pre_points_FeaturesToJSON.geojson'};
 
 // Stars
-(()=>{const c=document.getElementById('stars');for(let i=0;i<100;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+0.5;s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`;c.appendChild(s);}})();
-setTimeout(()=>{if(!document.getElementById('landing').classList.contains('fade-out'))enterDash();},7000);
+(()=>{const c=document.getElementById('stars');if(!c)return;for(let i=0;i<100;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+0.5;s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`;c.appendChild(s);}})();
+
+function injectAssets() {
+  if (typeof DASHBOARD_ASSETS === 'undefined') return;
+  document.querySelectorAll('img').forEach(img => {
+    const src = img.getAttribute('src');
+    if (src && src.includes('IMG_ASSET_')) {
+      const parts = src.split(',');
+      const key = parts[parts.length - 1];
+      if (DASHBOARD_ASSETS[key]) {
+        img.src = DASHBOARD_ASSETS[key];
+      }
+    }
+  });
+}
+
+// Initial Injection
+injectAssets();
+
+setTimeout(()=>{
+  const landing = document.getElementById('landing');
+  if(landing && !landing.classList.contains('fade-out')) enterDash();
+},7000);
 
 function enterDash(){
   const l=document.getElementById('landing');
+  if(!l) return;
   l.classList.add('fade-out');
   setTimeout(()=>{
     l.style.display='none';
-    document.getElementById('app').style.display='flex';
-    initHomeCharts(); renderTable(ALL_DATA); initAI();
-    handleHash(); // Navigate to hash on enter
+    const app = document.getElementById('app');
+    if(app) app.style.display='flex';
+    
+    // Ensure data is loaded
+    if(typeof ALL_DATA !== 'undefined') {
+      initHomeCharts(); 
+      renderTable(ALL_DATA);
+    } else {
+      console.error("ALL_DATA not loaded");
+    }
+    
+    initAI();
+    handleHash(); 
   },1100);
 }
 

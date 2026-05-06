@@ -40,7 +40,7 @@ try {
 }
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'SwanRiver_Dashboard_v5_clean.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -98,7 +98,11 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
+}
+
+module.exports = app;
 
