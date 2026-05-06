@@ -1,0 +1,7 @@
+157: .aki{flex:1;min-width:150px;padding:7px 12px;border-radius:8px;border:1px solid var(--border);font-family:'Nunito',sans-serif;font-size:12px;outline:none;background:#fff;}
+215: <div class="ni" data-page="ai" onclick="showPage('ai',this)"><span class="ni-ico">🤖</span> AI Assistant</div>
+369: <button class="sndb" onclick="sendMsg()">➤</button>
+540: // ===== OFFLINE AI ASSISTANT (No API needed) =====
+712: function askQ(q){ document.getElementById('chat-in').value=q; sendMsg(); }
+740: function sendMsg(){
+756: function chatKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(); } }
