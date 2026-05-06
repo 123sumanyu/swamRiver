@@ -16,10 +16,15 @@ function injectAssets() {
       const parts = src.split(',');
       const key = parts[parts.length - 1];
       if (DASHBOARD_ASSETS[key]) {
-        img.src = DASHBOARD_ASSETS[key];
+        img.src = "data:image/jpeg;base64," + DASHBOARD_ASSETS[key];
       }
     }
   });
+  // Also update download link
+  const dlb = document.querySelector('.dlb');
+  if (dlb && DASHBOARD_ASSETS['IMG_ASSET_2']) {
+    dlb.href = "data:image/jpeg;base64," + DASHBOARD_ASSETS['IMG_ASSET_2'];
+  }
 }
 
 // Initial Injection
