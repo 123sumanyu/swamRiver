@@ -413,6 +413,7 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
 
@@ -1684,14 +1685,16 @@
          Only messages area scrolls.
          ============================ */
       #page-ai {
-        /* Override generic page scroll — AI handles its own scroll */
         padding: 8px !important;
         height: 100% !important;
-        height: 100dvh !important; /* Dynamic viewport for mobile keyboards */
         overflow: hidden !important;
         display: flex !important;
         flex-direction: column !important;
         box-sizing: border-box;
+      }
+
+      .ci {
+        font-size: 16px !important;
       }
 
       /* The flex row becomes a flex column */
