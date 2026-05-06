@@ -512,6 +512,9 @@
     #page-ai {
       padding: 18px 24px;
       display: none;
+      height: 100%;
+      box-sizing: border-box;
+      overflow-y: hidden !important;
     }
 
     #page-ai.active {
@@ -1189,6 +1192,7 @@
       flex-direction: column;
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      min-height: 0; /* Important for flex children scrolling */
     }
 
     .chd {
@@ -1680,6 +1684,7 @@
         /* Override generic page scroll — AI handles its own scroll */
         padding: 8px !important;
         height: 100% !important;
+        height: 100dvh !important; /* Dynamic viewport for mobile keyboards */
         overflow: hidden !important;
         display: flex !important;
         flex-direction: column !important;
