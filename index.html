@@ -1478,10 +1478,12 @@
       .pages {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        /* Reserve space for the 60px fixed bottom nav */
+        padding-bottom: 60px;
       }
 
       .page {
-        padding: 12px 12px 80px 12px;
+        padding: 12px 12px 72px 12px;
         height: auto !important;
         overflow-y: visible !important;
       }
