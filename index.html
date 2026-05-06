@@ -346,6 +346,10 @@
       margin-top: 3px;
     }
 
+    .sb-close {
+      display: none;
+    }
+
     .nav-s {
       padding: 14px 10px 6px;
     }
@@ -1406,7 +1410,7 @@
         transform: translateX(-100%);
         transition: transform 0.3s ease;
         width: 260px !important;
-        z-index: 200;
+        z-index: 10001; /* Above Leaflet controls */
       }
 
       .sidebar.mobile-open {
@@ -1417,11 +1421,29 @@
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 199;
+        z-index: 10000; /* Above Leaflet controls (1000) */
+        display: none;
       }
 
       .sidebar-overlay.visible {
         display: block !important;
+      }
+
+      .sb-close {
+        display: flex !important;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.2);
       }
 
       /* --- Main area --- */
@@ -2027,6 +2049,7 @@
         <div class="ico">🌊</div>
         <div class="ttl">Swan River Survey<br>Dashboard</div>
         <div class="sub">CoE SEnSRS • IIT Ropar • 2025</div>
+        <div class="sb-close" onclick="toggleSidebar()">✕</div>
       </div>
       <div class="nav-s">
         <div class="nav-lbl">Navigation</div>
