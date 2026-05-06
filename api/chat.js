@@ -42,7 +42,7 @@ module.exports = async (req, res) => {
             return res.status(500).json({ error: "Gemini API key not configured on server" });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
         const formattedHistory = (history || []).map(msg => ({
             role: msg.role === 'bot' ? 'model' : 'user',
