@@ -92,9 +92,16 @@ function showPage(p, el) {
   if (p === 'analytics' && !analyticsReady) { analyticsReady = true; initAnalytics(); }
 
   // Close mobile sidebar & overlay
-  document.querySelector('.sidebar').classList.remove('mobile-open');
+  const sb = document.querySelector('.sidebar');
+  if (sb) sb.classList.remove('mobile-open');
   const ov = document.getElementById('sidebar-overlay');
   if (ov) ov.classList.remove('visible');
+
+  // Toggle FAB visibility
+  const fab = document.getElementById('fab-ai');
+  if (fab) {
+    fab.style.display = (p === 'ai') ? 'none' : 'flex';
+  }
 }
 
 // Handle Hash Navigation
