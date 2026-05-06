@@ -1491,11 +1491,7 @@
         min-height: 100%;
       }
 
-      #page-ai {
-        padding: 10px 10px 80px 10px;
-        overflow-y: auto !important;
-        height: 100% !important;
-      }
+
 
       #page-map {
         padding: 0;
@@ -1651,100 +1647,113 @@
         font-size: 9px;
       }
 
-      /* --- AI page: fixed layout so input stays pinned --- */
+
+      /* ============================
+         AI PAGE — MOBILE LAYOUT
+         Input stays pinned at bottom.
+         Only messages area scrolls.
+         ============================ */
       #page-ai {
-        padding: 8px 8px 68px 8px !important;
+        /* Override generic page scroll — AI handles its own scroll */
+        padding: 8px !important;
+        padding-bottom: 68px !important;
         height: 100% !important;
         overflow: hidden !important;
         display: flex !important;
-        flex-direction: column;
+        flex-direction: column !important;
         box-sizing: border-box;
       }
 
+      /* The flex row becomes a flex column */
       .ai-lay {
+        display: flex !important;
+        flex-direction: column !important;
         flex: 1;
         min-height: 0;
-        flex-direction: column;
         gap: 8px;
         overflow: hidden;
-        height: 100%;
       }
 
+      /* Sidebar widgets shrink to a compact row */
       .ai-sd {
-        width: 100%;
-        height: auto;
-        flex-shrink: 0;
-        flex-direction: row;
+        display: flex !important;
+        flex-direction: row !important;
         flex-wrap: wrap;
+        width: 100%;
+        flex-shrink: 0;
         gap: 8px;
         overflow: visible;
       }
-
       .ai-sd .mc {
         flex: 1;
-        min-width: 120px;
+        min-width: 130px;
         padding: 10px;
         text-align: center;
       }
-
-      .ai-sd .card {
+      /* Language card stays visible */
+      .ai-sd .card:nth-child(2) {
         flex: 1;
-        min-width: 120px;
+        min-width: 130px;
         padding: 8px !important;
       }
-
-      /* Hide quick questions panel on mobile */
+      /* Hide quick questions on mobile — too small */
       .ai-sd .card:last-child {
-        display: none;
+        display: none !important;
       }
 
+      /* Main chat column fills remaining space */
       .ai-mn {
         flex: 1;
         min-height: 0;
-        width: 100%;
-        display: flex;
+        display: flex !important;
         flex-direction: column;
         overflow: hidden;
+        width: 100%;
       }
 
+      /* Chat box fills .ai-mn */
       .cw2 {
         flex: 1;
         min-height: 0;
         display: flex;
         flex-direction: column;
         height: 100% !important;
+        overflow: hidden;
       }
 
+      /* Messages area is the ONLY scrolling part */
       .cm {
         flex: 1;
         min-height: 0;
-        overflow-y: auto;
+        overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
         padding: 10px;
+        overscroll-behavior: contain;
       }
 
+      /* Input bar always at the bottom — never scrolls away */
       .cir {
-        flex-shrink: 0;
+        flex-shrink: 0 !important;
         padding: 8px 10px;
         background: #fff;
         border-top: 1px solid var(--border);
         z-index: 10;
       }
 
+      /* 16px prevents iOS keyboard zoom-in */
       .ci {
-        font-size: 16px; /* prevents iOS auto-zoom */
+        font-size: 16px;
         -webkit-appearance: none;
       }
 
+      /* Messages */
       .msg {
         max-width: 90%;
-        font-size: 12px;
+        font-size: 12.5px;
         padding: 9px 12px;
       }
-
       .me { font-size: 30px; }
       .mn { font-size: 12px; }
-      #qq-container .qqb { font-size: 10px; padding: 5px 8px; }
 
       /* --- Download page --- */
       .dlh {
