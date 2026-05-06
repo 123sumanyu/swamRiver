@@ -1414,11 +1414,13 @@
       }
 
       .sidebar-overlay {
-        display: block !important;
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.5);
         z-index: 199;
+      }
+      .sidebar-overlay.visible {
+        display: block !important;
       }
 
       /* --- Main area --- */
@@ -1472,18 +1474,28 @@
       }
 
       /* --- Pages --- */
-      .page {
-        padding: 12px 12px 80px 12px;
+      .pages {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
       }
-
+      .page {
+        padding: 12px 12px 80px 12px;
+        height: auto !important;
+        overflow-y: visible !important;
+      }
+      .page.active {
+        display: block;
+        min-height: 100%;
+      }
       #page-ai {
         padding: 10px 10px 80px 10px;
+        overflow-y: auto !important;
+        height: 100% !important;
       }
-
       #page-map {
         padding: 0;
+        height: 100% !important;
+        overflow-y: hidden !important;
       }
 
       /* --- Landing page --- */
@@ -1635,74 +1647,70 @@
       }
 
       /* --- AI page --- */
+      #page-ai {
+        display: flex;
+        flex-direction: column;
+      }
       .ai-lay {
         flex-direction: column;
         gap: 10px;
-        height: auto;
+        flex: 1;
         overflow: visible;
+        height: auto;
       }
-
       .ai-sd {
         width: 100%;
         height: auto;
         overflow-y: visible;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 10px;
+        flex-direction: column;
+        gap: 8px;
+        flex-shrink: 0;
       }
-
       .ai-sd .mc {
-        flex: 1;
-        min-width: 140px;
         padding: 12px;
+        text-align: center;
       }
-
       .ai-sd .card {
-        flex: 1;
-        min-width: 140px;
         padding: 10px !important;
       }
-
+      /* Hide quick questions sidebar on mobile to save space */
+      .ai-sd .card:last-child {
+        display: none;
+      }
       .ai-mn {
-        flex: 1;
-        min-height: 50vh;
+        flex: none;
+        width: 100%;
       }
-
       .cw2 {
-        height: 60vh;
-        min-height: 300px;
+        height: 52vh;
+        min-height: 280px;
+        display: flex;
+        flex-direction: column;
       }
-
       .cm {
         padding: 10px;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
-
+      .cir {
+        padding: 8px 10px;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 10;
+      }
+      .ci {
+        font-size: 16px; /* 16px prevents iOS auto-zoom */
+        -webkit-appearance: none;
+      }
       .msg {
         max-width: 90%;
         font-size: 12px;
         padding: 9px 12px;
       }
-
-      .cir {
-        padding: 8px 10px;
-      }
-
-      .ci {
-        font-size: 13px;
-      }
-
-      .me {
-        font-size: 36px;
-      }
-
-      .mn {
-        font-size: 12px;
-      }
-
-      #qq-container .qqb {
-        font-size: 10px;
-        padding: 5px 8px;
-      }
+      .me { font-size: 36px; }
+      .mn { font-size: 12px; }
+      #qq-container .qqb { font-size: 10px; padding: 5px 8px; }
 
       /* --- Download page --- */
       .dlh {

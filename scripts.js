@@ -94,7 +94,7 @@ function showPage(p, el) {
   // Close mobile sidebar & overlay
   document.querySelector('.sidebar').classList.remove('mobile-open');
   const ov = document.getElementById('sidebar-overlay');
-  if (ov) ov.style.display = 'none';
+  if (ov) ov.classList.remove('visible');
 }
 
 // Handle Hash Navigation
@@ -108,7 +108,7 @@ function toggleSidebar() {
   const sb = document.querySelector('.sidebar');
   const ov = document.getElementById('sidebar-overlay');
   const isOpen = sb.classList.toggle('mobile-open');
-  if (ov) ov.style.display = isOpen ? 'block' : 'none';
+  if (ov) ov.classList.toggle('visible', isOpen);
 }
 
 
